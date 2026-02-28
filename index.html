@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>🎲 Dice Mastery</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700&family=Noto+Sans+JP:wght@700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0f1f17;--surface:#1a3328;--gold:#f5c842;--ink:#1a1a1a;
+  --s1:#2980b9;--s1bg:#dbeeff;
+  --s2:#27ae60;--s2bg:#d5f5e3;
+  --s3:#c9980a;--s3bg:#fef9e7;
+  --s4:#e67e22;--s4bg:#fdebd0;
+  --s5:#e74c3c;--s5bg:#fadbd8;
+  --steal:#8b5cf6;
+}
+html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--bg);color:#f0ebe0;touch-action:manipulation}
+
+/* ─── SCREENS ─── */
+.screen{display:none;position:fixed;inset:0}
+.screen.active{display:flex;flex-direction:column}
+
+
+/* ─── INSTRUCTIONS ─── */
+#instructions{align-items:center;justify-content:center;background:var(--bg)}
+.instr-wrap{width:100%;max-width:520px;height:100%;display:flex;flex-direction:column}
+.instr-dots{display:flex;gap:6px;justify-content:center;padding:16px 0 8px;flex-shrink:0}
+.instr-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.15);transition:all .25s}
+.instr-dot.on{background:var(--gold);transform:scale(1.3)}
+.instr-slide{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 24px;text-align:center;gap:14px;animation:fadeSlide .25s ease-out}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.instr-icon{font-size:clamp(3rem,10vw,5rem);line-height:1}
+.instr-en{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.5rem,5vw,2.4rem);letter-spacing:.08em;color:var(--gold);line-height:1.1}
+.instr-body-en{font-size:clamp(.85rem,2.5vw,1.1rem);color:rgba(240,235,224,.8);line-height:1.65;max-width:400px}
+.instr-divider{width:40px;height:2px;background:rgba(245,200,66,.3);border-radius:2px}
+.instr-jp{font-family:'Noto Sans JP','Hiragino Sans','YuGothic','Meiryo',sans-serif;font-size:clamp(1rem,3.5vw,1.5rem);color:rgba(240,235,224,.7);line-height:1.3}
+.instr-body-jp{font-family:'Noto Sans JP','Hiragino Sans','YuGothic','Meiryo',sans-serif;font-size:clamp(.75rem,2.2vw,.95rem);color:rgba(240,235,224,.5);line-height:1.8;max-width:400px}
+.instr-slots{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:380px}
+.instr-slot-chip{border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px;text-align:left}
+.instr-slot-chip .sc-icon{font-size:1.3rem;flex-shrink:0}
+.instr-slot-chip .sc-text{display:flex;flex-direction:column;gap:1px}
+.instr-slot-chip .sc-en{font-size:.72rem;font-weight:700;letter-spacing:.06em}
+.instr-slot-chip .sc-jp{font-family:'Noto Sans JP','Hiragino Sans','YuGothic','Meiryo',sans-serif;font-size:.62rem;opacity:.6}
+.instr-nav{display:flex;align-items:center;justify-content:space-between;padding:12px 20px 20px;flex-shrink:0;gap:10px}
+.instr-prev{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:12px 20px;color:rgba(240,235,224,.5);font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer}
+.instr-prev:disabled{opacity:.2;cursor:default}
+.instr-next{flex:1;background:var(--gold);border:none;border-radius:10px;padding:13px 20px;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer}
+.instr-skip{background:none;border:none;color:rgba(240,235,224,.25);font-size:.7rem;font-family:'DM Sans',sans-serif;cursor:pointer;letter-spacing:.1em;text-transform:uppercase;padding:4px 8px;white-space:nowrap}
+
+/* ─── SETUP ─── */
+#setup{align-items:center;justify-content:center;gap:16px;padding:20px;background:radial-gradient(ellipse at 50% 0%,#1a3328,var(--bg))}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,8vw,4rem);letter-spacing:.14em;color:var(--gold);text-shadow:0 0 40px rgba(245,200,66,.4);text-align:center;line-height:1}
+.logo-sub{font-size:.7rem;font-family:'DM Sans',sans-serif;letter-spacing:.25em;text-transform:uppercase;color:rgba(240,235,224,.3);text-align:center}
+.setup-box{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:20px;width:100%;max-width:480px;display:flex;flex-direction:column;gap:12px}
+.setup-box h2{font-size:1rem;color:var(--gold);font-family:'Bebas Neue',sans-serif;letter-spacing:.1em}
+.player-row{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.2);border-radius:10px;padding:8px 12px;border:1px solid rgba(255,255,255,.08)}
+.player-row input{flex:1;background:transparent;border:none;color:#f0ebe0;font-size:1rem;font-family:'DM Sans',sans-serif;outline:none}
+.player-row input::placeholder{color:rgba(240,235,224,.25)}
+.player-emoji{font-size:1.4rem;cursor:pointer;flex-shrink:0}
+.player-remove{background:none;border:none;color:rgba(240,235,224,.3);font-size:1.1rem;cursor:pointer;padding:2px 4px;flex-shrink:0}
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:14px 20px;border-radius:12px;border:none;font-family:'DM Sans',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;width:100%}
+.btn-gold{background:var(--gold);color:var(--ink)}
+.btn-add{background:rgba(255,255,255,.06);border:1px dashed rgba(255,255,255,.2);color:rgba(240,235,224,.5);font-size:.9rem;padding:10px}
+.points-row{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.points-row label{font-size:.75rem;color:rgba(240,235,224,.5);font-family:'DM Sans',sans-serif}
+.points-select{background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:8px;color:#f0ebe0;padding:6px 12px;font-size:.9rem;font-family:'DM Sans',sans-serif}
+
+/* ─── SCORE BAR ─── */
+.score-bar{display:flex;gap:6px;padding:8px 10px;background:rgba(0,0,0,.4);border-bottom:1px solid rgba(255,255,255,.07);overflow-x:auto;flex-shrink:0;z-index:10}
+.sc{display:flex;flex-direction:column;align-items:center;padding:5px 10px;border-radius:8px;border:2px solid transparent;flex-shrink:0;min-width:60px;transition:border-color .2s,background .2s}
+.sc.active{border-color:var(--gold);background:rgba(245,200,66,.1)}
+.sc .sa{font-size:1.3rem;line-height:1}
+.sc .sn{font-size:.58rem;font-weight:700;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(240,235,224,.7)}
+.sc .sp{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--gold);line-height:1}
+
+/* ─── MAIN SLIDE AREA ─── */
+#game{background:var(--bg)}
+.slide-area{flex:1;display:flex;align-items:center;justify-content:center;padding:12px;overflow:hidden}
+
+/* ─── ROLL SCREEN (whose turn) ─── */
+.roll-card{background:var(--surface);border:3px solid rgba(245,200,66,.25);border-radius:20px;padding:clamp(20px,4vw,40px);display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;max-width:480px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.turn-label{font-size:.7rem;font-family:'DM Sans',sans-serif;text-transform:uppercase;letter-spacing:.2em;color:rgba(240,235,224,.35)}
+.turn-animal{font-size:clamp(3rem,10vw,5rem);line-height:1}
+.turn-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,6vw,3rem);letter-spacing:.1em;color:var(--gold)}
+.die-btn{width:clamp(80px,18vw,110px);height:clamp(80px,18vw,110px);background:#faf7f0;border-radius:18px;border:none;font-size:clamp(2.5rem,8vw,4rem);cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.4),inset 0 2px 0 rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;transition:transform .1s;flex-shrink:0}
+.die-btn:active{transform:scale(.9)}
+.die-btn.rolling{animation:spin .45s ease-out}
+@keyframes spin{0%{transform:rotate(0)scale(1)}40%{transform:rotate(200deg)scale(1.2)}70%{transform:rotate(380deg)scale(.9)}100%{transform:rotate(360deg)scale(1)}}
+.roll-instruction{font-size:.8rem;color:rgba(240,235,224,.4);font-family:'DM Sans',sans-serif}
+
+/* ─── QUESTION SLIDE ─── */
+.q-card{width:100%;max-width:600px;border-radius:20px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.q-hdr{padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
+.q-slot-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.18em;opacity:.8}
+.q-card-num{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;opacity:.5}
+.q-body{flex:1;padding:clamp(20px,4vw,40px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;min-height:200px}
+.q-main{font-family:'Noto Sans JP','DM Sans',sans-serif;font-size:clamp(2rem,7vw,4rem);font-weight:700;line-height:1.2;color:var(--ink);word-break:break-word}
+.q-instruction{font-size:clamp(.75rem,2.5vw,1.1rem);color:rgba(26,26,26,.55);font-family:'Noto Sans JP','DM Sans',sans-serif;line-height:1.5}
+.q-tap-hint{font-size:.7rem;text-transform:uppercase;letter-spacing:.18em;opacity:.4;font-family:'DM Sans',sans-serif;margin-top:8px}
+.q-ftr{padding:10px 20px;display:flex;align-items:center;justify-content:space-between}
+.q-player-chip{display:flex;align-items:center;gap:6px;font-size:.8rem}
+
+/* SLOT COLOURS */
+.slot-1 .q-hdr,.slot-1 .q-ftr{background:var(--s1bg)}
+.slot-1 .q-body{background:white}
+.slot-1 .q-hdr{border-bottom:2px solid var(--s1)}.slot-1 .q-slot-label{color:var(--s1)}
+.slot-2 .q-hdr,.slot-2 .q-ftr{background:var(--s2bg)}
+.slot-2 .q-body{background:white}
+.slot-2 .q-hdr{border-bottom:2px solid var(--s2)}.slot-2 .q-slot-label{color:var(--s2)}
+.slot-3 .q-hdr,.slot-3 .q-ftr{background:var(--s3bg)}
+.slot-3 .q-body{background:white}
+.slot-3 .q-hdr{border-bottom:2px solid var(--s3)}.slot-3 .q-slot-label{color:var(--s3)}
+.slot-4 .q-hdr,.slot-4 .q-ftr{background:var(--s4bg)}
+.slot-4 .q-body{background:white}
+.slot-4 .q-hdr{border-bottom:2px solid var(--s4)}.slot-4 .q-slot-label{color:var(--s4)}
+.slot-5 .q-hdr,.slot-5 .q-ftr{background:var(--s5bg)}
+.slot-5 .q-body{background:white}
+.slot-5 .q-hdr{border-bottom:2px solid var(--s5)}.slot-5 .q-slot-label{color:var(--s5)}
+.steal-card .q-hdr,.steal-card .q-ftr{background:#2c1654}
+.steal-card .q-body{background:#1a0a33}
+.steal-card .q-slot-label{color:#e9d5ff}
+.steal-card .q-main{color:#e9d5ff}
+.steal-card .q-instruction{color:rgba(233,213,255,.55)}
+
+/* ─── ANSWER SLIDE ─── */
+.a-card{width:100%;max-width:600px;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:flipIn .25s ease-out}
+@keyframes flipIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.a-hdr{padding:14px 20px;display:flex;align-items:center;gap:10px}
+.a-hdr-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.18em;opacity:.6;font-family:'DM Sans',sans-serif}
+.a-body{padding:clamp(16px,4vw,36px);display:flex;flex-direction:column;align-items:center;gap:10px;background:white;text-align:center}
+.a-answer{font-family:'DM Sans',sans-serif;font-size:clamp(1.6rem,5vw,3rem);font-weight:700;color:var(--ink);line-height:1.2}
+.a-q-recall{font-size:clamp(.75rem,2vw,1rem);color:rgba(26,26,26,.4);font-family:'Noto Sans JP','DM Sans',sans-serif}
+.judge-row{padding:12px 16px;display:flex;gap:10px;background:#f5f5f5}
+.jbtn{flex:1;padding:14px;border-radius:12px;border:none;font-size:clamp(1rem,3vw,1.4rem);font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:transform .1s,opacity .2s}
+.jbtn:active{transform:scale(.95)}
+.jbtn.correct{background:#27ae60;color:white}
+.jbtn.wrong{background:#e74c3c;color:white}
+.jbtn:disabled{opacity:.35;cursor:not-allowed}
+
+/* ─── POINTS SLIDE ─── */
+.pts-card{background:var(--surface);border:3px solid var(--gold);border-radius:20px;padding:clamp(20px,4vw,40px);display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;max-width:400px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.pts-result{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,5vw,2.2rem);letter-spacing:.08em;color:#27ae60}
+.pts-roll-label{font-size:.8rem;color:rgba(240,235,224,.4);font-family:'DM Sans',sans-serif}
+.pts-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,12vw,6rem);color:var(--gold);line-height:1;text-shadow:0 0 40px rgba(245,200,66,.4)}
+.next-btn{width:100%;padding:14px;border-radius:12px;border:none;background:var(--gold);color:var(--ink);font-family:'DM Sans',sans-serif;font-weight:700;font-size:1rem;cursor:pointer}
+
+/* ─── WRONG SLIDE ─── */
+.wrong-card{background:#2a0a0a;border:3px solid #e74c3c;border-radius:20px;padding:clamp(20px,4vw,40px);display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:400px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.wrong-icon{font-size:clamp(2.5rem,8vw,4rem)}
+.wrong-label{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.6rem,6vw,2.5rem);letter-spacing:.08em;color:#e74c3c}
+.wrong-ans{background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.3);border-radius:10px;padding:12px 20px;font-size:clamp(.9rem,2.5vw,1.2rem);color:#f5a5a0;font-family:'Noto Sans JP','DM Sans',sans-serif}
+
+/* ─── STEAL SLIDE ─── */
+.steal-result-card{background:linear-gradient(135deg,#2c1654,#1a0a33);border:3px solid var(--steal);border-radius:20px;padding:clamp(20px,4vw,40px);display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:400px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.steal-headline{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,7vw,3rem);letter-spacing:.1em;color:#e9d5ff}
+.steal-detail{font-size:.85rem;color:rgba(233,213,255,.6);font-family:'DM Sans',sans-serif}
+
+/* ─── WIN SCREEN ─── */
+#win{align-items:center;justify-content:center;gap:0;padding:0;background:var(--bg);overflow:hidden}
+.win-inner{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;background:radial-gradient(ellipse at 50% 20%,rgba(245,200,66,.18),transparent 65%)}
+.win-confetti{font-size:clamp(1.2rem,4vw,2rem);letter-spacing:.15em;text-align:center;animation:confettiBounce 1s ease-out}
+@keyframes confettiBounce{0%{transform:scale(0) rotate(-10deg);opacity:0}60%{transform:scale(1.15) rotate(3deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+.win-crown{font-size:clamp(3.5rem,12vw,6rem);text-align:center;animation:crownDrop .6s .2s both cubic-bezier(.17,.67,.24,1.4)}
+@keyframes crownDrop{from{transform:translateY(-40px) scale(.5);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+.win-label{font-family:'DM Sans',sans-serif;font-size:.7rem;text-transform:uppercase;letter-spacing:.3em;color:rgba(240,235,224,.4);animation:fadeUp .5s .4s both}
+.win-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,9vw,4.5rem);letter-spacing:.1em;color:var(--gold);text-align:center;line-height:1;text-shadow:0 0 40px rgba(245,200,66,.5);animation:fadeUp .5s .5s both}
+.win-score-badge{background:rgba(245,200,66,.15);border:2px solid rgba(245,200,66,.4);border-radius:50px;padding:8px 24px;font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,5vw,2rem);color:var(--gold);animation:fadeUp .5s .6s both}
+.win-jp{font-family:'Noto Sans JP','Hiragino Sans','YuGothic','Meiryo',sans-serif;font-size:clamp(.8rem,2.5vw,1.1rem);color:rgba(240,235,224,.4);animation:fadeUp .5s .65s both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.final-list{width:100%;max-width:380px;display:flex;flex-direction:column;gap:5px;animation:fadeUp .5s .7s both}
+.fl-row{background:rgba(255,255,255,.05);border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:10px;font-size:clamp(.82rem,2.5vw,1rem)}
+.fl-row.top{background:rgba(245,200,66,.12);border:2px solid rgba(245,200,66,.4)}
+.fl-pts{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--gold);margin-left:auto}
+.win-divider{width:60px;height:2px;background:rgba(245,200,66,.25);border-radius:2px;animation:fadeUp .5s .68s both}
+
+/* ─── BOTTOM NAV ─── */
+.bottom-nav{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(0,0,0,.35);border-top:1px solid rgba(255,255,255,.06);flex-shrink:0}
+.bnav-info{font-size:.62rem;font-family:'DM Sans',sans-serif;text-transform:uppercase;letter-spacing:.12em;color:rgba(240,235,224,.25)}
+.bnav-btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 14px;color:rgba(240,235,224,.5);font-size:.7rem;font-family:'DM Sans',sans-serif;cursor:pointer}
+.bnav-btn:hover{border-color:rgba(240,235,224,.3);color:rgba(240,235,224,.8)}
+</style>
+</head>
+<body>
+
+<!-- ══ INSTRUCTIONS ══ -->
+<div id="instructions" class="screen active">
+  <div class="instr-wrap">
+    <div class="instr-dots" id="instr-dots"></div>
+    <div class="instr-slide" id="instr-slide"></div>
+    <div class="instr-nav">
+      <button class="instr-prev" id="instr-prev" onclick="instrPrev()">← Back</button>
+      <button class="instr-next" id="instr-next" onclick="instrNext()">Next →</button>
+      <button class="instr-skip" onclick="skipInstr()">Skip</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SETUP ══ -->
+<div id="setup" class="screen">
+  <div class="logo">🎲<br>DICE<br>MASTERY</div>
+  <div class="logo-sub">Classroom Slideshow Edition</div>
+  <div class="setup-box">
+    <h2>PLAYERS</h2>
+    <div id="player-rows"></div>
+    <button class="btn btn-add" onclick="addPlayer()" id="add-btn">＋ Add Player</button>
+    <div class="points-row">
+      <label>First to reach:</label>
+      <select class="points-select" id="target-pts">
+        <option value="10">10 points</option>
+        <option value="15">15 points</option>
+        <option value="20" selected>20 points</option>
+        <option value="30">30 points</option>
+      </select>
+    </div>
+    <button class="btn btn-gold" onclick="startGame()">▶ Start Game</button>
+  </div>
+</div>
+
+<!-- ══ GAME ══ -->
+<div id="game" class="screen">
+  <div class="score-bar" id="score-bar"></div>
+  <div class="slide-area" id="slide-area"></div>
+  <div class="bottom-nav">
+    <div class="bnav-info" id="bnav-info">Round 1</div>
+    <button class="bnav-btn" onclick="showSetup()">⚙ Restart</button>
+  </div>
+</div>
+
+<!-- ══ WIN ══ -->
+<div id="win" class="screen">
+  <div class="win-inner">
+    <div class="win-confetti">🎊 🎉 🎊</div>
+    <div class="win-crown" id="win-crown">🏆</div>
+    <div class="win-label">WINNER / 優勝者</div>
+    <div class="win-name" id="win-name"></div>
+    <div class="win-score-badge" id="win-score"></div>
+    <div class="win-jp" id="win-jp">おめでとうございます！</div>
+    <div class="win-divider"></div>
+    <div class="final-list" id="final-list"></div>
+    <button class="btn btn-gold" style="max-width:300px;margin-top:8px" onclick="showSetup()">🔄 Play Again</button>
+  </div>
+</div>
+
+<script>
+// ═══ DATA ═══
+const ANIMALS = ['🐕','🐈','🐸','🐔','🐇','🐄'];
+const DIE = ['','⚀','⚁','⚂','⚃','⚄','⚅'];
+const SLOT_NAMES = {1:'Visual 🖼',2:'Translation 📖',3:'Spelling ✏️',4:'Sentence 💬',5:'Synthesis ⭐'};
+const STEAL_SPACES = new Set([9,19,29,39]);
+
+const CARDS = {
+  1:[
+    {q:'🥩',i:'What food is this? / これは英語で？',a:'Steak'},
+    {q:'🍳',i:'What is this? / これは英語で？',a:'Fried egg'},
+    {q:'🌧️',i:'What weather? / この天気は英語で？',a:'Rain / Rainy'},
+    {q:'🐄',i:'What animal? / この動物は英語で？',a:'Cow / Bull'},
+    {q:'🏋️',i:'What activity? / この活動は英語で？',a:'Weightlifting'},
+    {q:'🚌',i:'What vehicle? / この乗り物は英語で？',a:'Bus'},
+    {q:'🌸',i:'What is this? / これは英語で？',a:'Cherry blossom / Spring'},
+    {q:'➕🔢',i:'What school subject? / この教科は英語で？',a:'Math / Mathematics'},
+    {q:'🔬',i:'What subject? / この教科は英語で？',a:'Science'},
+    {q:'👨‍🚀',i:'What job? / この仕事は英語で？',a:'Astronaut'},
+    {q:'👮',i:'What job? / この職業は英語で？',a:'Police Officer'},
+    {q:'👑',i:'What person? / この人は英語で？',a:'King'},
+    {q:'🍗',i:'What food? / この食べ物は英語で？',a:'Fried Chicken'},
+    {q:'🏰',i:'What building? / この建物は英語で？',a:'Castle'},
+    {q:'🏸',i:'What sport? / このスポーツは英語で？',a:'Badminton'},
+  ],
+  2:[
+    {q:'なぜ',i:'What does this mean in English? / 英語で何と言いますか？',a:'Why'},
+    {q:'いつ',i:'What does this mean? / 英語で何と言いますか？',a:'When'},
+    {q:'どこ',i:'What does this mean? / 英語で何と言いますか？',a:'Where'},
+    {q:'だれ',i:'What does this mean? / 英語で何と言いますか？',a:'Who'},
+    {q:'どうやって',i:'What does this mean? / 英語で何と言いますか？',a:'How'},
+    {q:'いくら',i:'What does this mean? / 英語で何と言いますか？',a:'How much'},
+    {q:'どれくらい',i:'What does this mean? / 英語で何と言いますか？',a:'How long / How far'},
+    {q:'ワニ',i:'What does this mean? / 英語で何と言いますか？',a:'Crocodile'},
+    {q:'八月',i:'What does this mean? / 英語で何と言いますか？',a:'August'},
+    {q:'野球チーム',i:'What does this mean? / 英語で何と言いますか？',a:'Baseball Team'},
+    {q:'科学',i:'What does this mean? / 英語で何と言いますか？',a:'Science'},
+    {q:'運動会',i:'What does this mean? / 英語で何と言いますか？',a:'Sports Day'},
+    {q:'月曜日',i:'What does this mean? / 英語で何と言いますか？',a:'Monday'},
+    {q:'泳ぐ',i:'What does this mean? / 英語で何と言いますか？',a:'Swim / Swimming'},
+    {q:'おじいさん',i:'What does this mean? / 英語で何と言いますか？',a:'Grandfather'},
+  ],
+  3:[
+    {q:'朝食',i:'Spell it in English. / 英語のスペルは？',a:'B·R·E·A·K·F·A·S·T'},
+    {q:'図書館',i:'Spell it in English. / 英語のスペルは？',a:'L·I·B·R·A·R·Y'},
+    {q:'病院',i:'Spell it in English. / 英語のスペルは？',a:'H·O·S·P·I·T·A·L'},
+    {q:'駅',i:'Spell it in English. / 英語のスペルは？',a:'S·T·A·T·I·O·N'},
+    {q:'学校',i:'Spell it in English. / 英語のスペルは？',a:'S·C·H·O·O·L'},
+    {q:'友達',i:'Spell it in English. / 英語のスペルは？',a:'F·R·I·E·N·D'},
+    {q:'レストラン',i:'Spell it in English. / 英語のスペルは？',a:'R·E·S·T·A·U·R·A·N·T'},
+    {q:'青',i:'Spell it in English. / 英語のスペルは？',a:'B·L·U·E'},
+    {q:'帽子',i:'Spell it in English. / 英語のスペルは？',a:'C·A·P'},
+    {q:'猫',i:'Spell it in English. / 英語のスペルは？',a:'C·A·T'},
+    {q:'エジプト',i:'Spell this country. / 英語のスペルは？',a:'E·G·Y·P·T'},
+    {q:'中国',i:'Spell this country. / 英語のスペルは？',a:'C·H·I·N·A'},
+    {q:'六月',i:'Spell this month. / 英語のスペルは？',a:'J·U·N·E'},
+    {q:'ヒーロー',i:'Spell it in English. / 英語のスペルは？',a:'H·E·R·O'},
+    {q:'バン',i:'Spell this vehicle. / 英語のスペルは？',a:'V·A·N'},
+  ],
+  4:[
+    {q:'私はふだん宿題をします。',i:'Translate to English. / 英語に訳してください。',a:'"I usually do my homework."'},
+    {q:'彼女は毎日英語を勉強します。',i:'Translate to English. / 英語に訳してください。',a:'"She studies English every day."'},
+    {q:'私たちは公園で遊びます。',i:'Translate to English. / 英語に訳してください。',a:'"We play in the park."'},
+    {q:'彼は音楽を聴くのが好きです。',i:'Translate to English. / 英語に訳してください。',a:'"He likes listening to music."'},
+    {q:'今日は天気がいいです。',i:'Translate to English. / 英語に訳してください。',a:'"The weather is good today."'},
+    {q:'私は将来、医者になりたいです。',i:'Translate to English. / 英語に訳してください。',a:'"I want to become a doctor."'},
+    {q:'週末に家族と買い物に行きました。',i:'Translate to English. / 英語に訳してください。',a:'"I went shopping with my family."'},
+    {q:'私は体育が好きです。',i:'Translate to English. / 英語に訳してください。',a:'"I like P.E."'},
+    {q:'私は速く走れません。',i:'Translate to English. / 英語に訳してください。',a:'"I can\'t run fast."'},
+    {q:'彼女は私の母です。',i:'Translate to English. / 英語に訳してください。',a:'"She is my mother."'},
+    {q:'私たちには素敵な公園があります。',i:'Translate to English. / 英語に訳してください。',a:'"We have a nice park."'},
+    {q:'左側に見えますよ。',i:'Translate to English. / 英語に訳してください。',a:'"You can see it on your left."'},
+    {q:'中華街を見たいです。',i:'Translate to English. / 英語に訳してください。',a:'"I want to see Chinatown."'},
+    {q:'彼は歌うのが得意です。',i:'Translate to English. / 英語に訳してください。',a:'"He is good at singing."'},
+    {q:'彼女は私の友達です。',i:'Translate to English. / 英語に訳してください。',a:'"She is my friend."'},
+  ],
+  5:[
+    {q:'"My favorite _____ is _____."',i:'Complete the sentence aloud. / 声に出して完成させましょう。',a:'✦ Oral — teacher judges'},
+    {q:'3 things you did yesterday',i:'Say in English using past tense. / 過去形で3つ言いましょう。',a:'✦ Oral — 3 past-tense sentences'},
+    {q:"Today's weather",i:'Describe in one full sentence. / 一文で説明しましょう。',a:'✦ Oral — complete sentence'},
+    {q:'"I enjoy ___ing..."',i:'Complete and say aloud. / 完成させて言いましょう。',a:'✦ Oral — gerund form'},
+    {q:'Introduce yourself',i:'Two sentences about you. / 自己紹介を2文で。',a:'✦ Oral — name + one fact'},
+    {q:'Your weekend plans',i:'Use "will". / "will"を使って。',a:'✦ Oral — future tense'},
+    {q:'Compare two things',i:'Use "better than because". / 比較級を使って。',a:'✦ Oral — comparative'},
+    {q:'"I want to go to _____."',i:'Complete aloud. / 声に出して言いましょう。',a:'✦ Oral — any place'},
+    {q:'"I like _____."',i:'Complete aloud. / 声に出して言いましょう。',a:'✦ Oral — any noun'},
+    {q:'"My birthday is _____."',i:'Complete aloud. / 声に出して言いましょう。',a:'✦ Oral — month and day'},
+    {q:'"I\'d like _____ and _____."',i:'Complete aloud. / 声に出して言いましょう。',a:'✦ Oral — two items'},
+    {q:'"I want to go ___ing."',i:'Complete aloud. / 声に出して言いましょう。',a:'✦ Oral — gerund'},
+    {q:'"I want a _____."',i:'Complete aloud. / 声に出して言いましょう。',a:'✦ Oral — any noun'},
+    {q:'"I can _____."',i:'Complete aloud. / 声に出して言いましょう。',a:'✦ Oral — base verb'},
+    {q:'"He / She is _____."',i:'Complete aloud. / 声に出して言いましょう。',a:'✦ Oral — describe a person'},
+  ],
+};
+
+// ═══ STATE ═══
+let players=[], currentIdx=0, round=1, targetPts=20;
+let deck={}, phase='roll'; // roll | question | answer | points | wrong | steal
+let currentCard=null, currentSlot=0, positions=[];
+let stealAmt=0;
+
+// ═══ SETUP ═══
+function init(){
+  const rows = document.getElementById('player-rows');
+  rows.innerHTML='';
+  [['You',''],['Player 2',''],['Player 3','']].forEach(([name],i)=>{
+    addPlayer(name);
+  });
+}
+
+function addPlayer(defaultName=''){
+  const rows=document.getElementById('player-rows');
+  if(rows.children.length>=6){document.getElementById('add-btn').style.display='none';return;}
+  const idx=rows.children.length;
+  const animal=ANIMALS[idx]||ANIMALS[0];
+  const div=document.createElement('div');
+  div.className='player-row';
+  div.dataset.animal=animal;
+  div.innerHTML=`
+    <span class="player-emoji" onclick="cycleAnimal(this)">${animal}</span>
+    <input placeholder="Player ${idx+1} name" value="${defaultName}">
+    <button class="player-remove" onclick="removePlayer(this)">✕</button>`;
+  rows.appendChild(div);
+  if(rows.children.length>=6) document.getElementById('add-btn').style.display='none';
+}
+
+function removePlayer(btn){
+  const row=btn.closest('.player-row');
+  row.remove();
+  document.getElementById('add-btn').style.display='';
+}
+
+function cycleAnimal(el){
+  const cur=ANIMALS.indexOf(el.textContent);
+  el.textContent=ANIMALS[(cur+1)%ANIMALS.length];
+  el.closest('.player-row').dataset.animal=el.textContent;
+}
+
+function startGame(){
+  const rows=[...document.querySelectorAll('.player-row')];
+  players=rows.map((r,i)=>({
+    name:r.querySelector('input').value.trim()||`Player ${i+1}`,
+    animal:r.dataset.animal,
+    points:0
+  })).filter(p=>p.name);
+  if(players.length<1){alert('Add at least 1 player!');return;}
+  targetPts=parseInt(document.getElementById('target-pts').value);
+  // Build shuffled decks
+  deck={};
+  for(let s=1;s<=5;s++) deck[s]=shuffle([...Array(CARDS[s].length).keys()]);
+  positions=players.map(()=>1);
+  currentIdx=0; round=1; phase='roll';
+  document.querySelector('.screen.active').classList.remove('active');
+  document.getElementById('game').classList.add('active');
+  render();
+}
+
+function showSetup(){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('setup').classList.add('active');
+}
+
+// ═══ SHUFFLE ═══
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function d6(){return Math.ceil(Math.random()*6);}
+
+// ═══ DRAW CARD ═══
+function drawCard(slot){
+  if(!deck[slot]||deck[slot].length===0){
+    // Reshuffle
+    deck[slot]=shuffle([...Array(CARDS[slot].length).keys()]);
+  }
+  const idx=deck[slot].pop();
+  return {...CARDS[slot][idx],slot};
+}
+
+// ═══ RENDER ═══
+function render(){
+  renderScoreBar();
+  renderSlide();
+  document.getElementById('bnav-info').textContent=`Round ${round} · ${players[currentIdx].name}'s turn`;
+}
+
+function renderScoreBar(){
+  document.getElementById('score-bar').innerHTML=players.map((p,i)=>`
+    <div class="sc${i===currentIdx?' active':''}">
+      <div class="sa">${p.animal}</div>
+      <div class="sn">${p.name}</div>
+      <div class="sp">${p.points}</div>
+    </div>`).join('');
+}
+
+function renderSlide(){
+  const p=players[currentIdx];
+  const area=document.getElementById('slide-area');
+
+  if(phase==='roll'){
+    area.innerHTML=`
+      <div class="roll-card">
+        <div class="turn-label">It's your turn!</div>
+        <div class="turn-animal">${p.animal}</div>
+        <div class="turn-name">${p.name}</div>
+        <div class="roll-instruction">Tap the die to roll and move</div>
+        <div class="die-btn" id="move-die" onclick="rollMove()">🎲</div>
+      </div>`;
+  }
+
+  else if(phase==='question'){
+    const c=currentCard;
+    const isSteal=c.steal;
+    const cls=isSteal?'steal-card':`slot-${c.slot}`;
+    const slotLabel=isSteal?'🎯 STEAL SPACE':SLOT_NAMES[c.slot];
+    area.innerHTML=`
+      <div class="q-card ${cls}" onclick="revealAnswer()">
+        <div class="q-hdr">
+          <span class="q-slot-label">${slotLabel}</span>
+          <span class="q-card-num">${p.animal} ${p.name}</span>
+        </div>
+        <div class="q-body">
+          <div class="q-main">${c.q}</div>
+          <div class="q-instruction">${c.i}</div>
+          <div class="q-tap-hint">tap to reveal answer</div>
+        </div>
+        <div class="q-ftr">
+          <div class="q-player-chip"><span>${p.animal}</span><span>${p.name}</span></div>
+          <div style="font-size:.65rem;opacity:.4;font-family:'DM Sans',sans-serif">Slot ${c.slot}</div>
+        </div>
+      </div>`;
+  }
+
+  else if(phase==='answer'){
+    const c=currentCard;
+    const cls=`slot-${c.slot}`;
+    const color=['','var(--s1)','var(--s2)','var(--s3)','var(--s4)','var(--s5)'][c.slot];
+    area.innerHTML=`
+      <div class="a-card ${cls}">
+        <div class="a-hdr" style="background:${color}20;border-bottom:2px solid ${color}">
+          <span style="font-size:1.2rem">${p.animal}</span>
+          <div>
+            <div class="a-hdr-label">${SLOT_NAMES[c.slot]}</div>
+          </div>
+        </div>
+        <div class="a-body">
+          <div class="a-q-recall">${c.q}</div>
+          <div class="a-answer">${c.a}</div>
+        </div>
+        <div class="judge-row">
+          <button class="jbtn correct" onclick="judgeCorrect()">✅ Correct</button>
+          <button class="jbtn wrong" onclick="judgeWrong()">❌ Wrong</button>
+        </div>
+      </div>`;
+  }
+
+  else if(phase==='points'){
+    area.innerHTML=`
+      <div class="pts-card">
+        <div class="pts-result">✅ CORRECT!</div>
+        <div class="turn-animal">${p.animal}</div>
+        <div class="pts-roll-label">${p.name} — tap the die to earn points</div>
+        <div class="die-btn" id="pts-die" onclick="rollPoints()">🎲</div>
+      </div>`;
+  }
+
+  else if(phase==='wrong'){
+    area.innerHTML=`
+      <div class="wrong-card">
+        <div class="wrong-icon">❌</div>
+        <div class="wrong-label">INCORRECT</div>
+        <div class="wrong-ans">Answer: ${currentCard.a}</div>
+        <button class="next-btn" style="margin-top:8px;background:#e74c3c;color:white" onclick="nextPlayer()">Next Player →</button>
+      </div>`;
+  }
+
+  else if(phase==='steal'){
+    const victim=players.reduce((best,p,i)=>p.points>players[best].points?i:best,
+      (currentIdx+1)%players.length);
+    const vp=players[victim];
+    area.innerHTML=`
+      <div class="steal-result-card">
+        <div style="font-size:2.5rem">🎯</div>
+        <div class="steal-headline">STEAL!</div>
+        <div class="turn-animal">${p.animal}</div>
+        <div class="steal-detail">${p.name} answered correctly!<br>Tap die to steal from <strong>${vp.animal} ${vp.name}</strong></div>
+        <div class="die-btn" id="steal-die" onclick="rollSteal(${victim})">🎲</div>
+      </div>`;
+  }
+
+  else if(phase==='steal_result'){
+    const victim=stealVictim;
+    const vp=players[victim];
+    area.innerHTML=`
+      <div class="steal-result-card">
+        <div style="font-size:2.5rem">💸</div>
+        <div class="steal-headline">${p.name} STEALS ${stealAmt}!</div>
+        <div class="steal-detail">−${stealAmt} from ${vp.animal} ${vp.name}<br>${vp.name} now has ${vp.points} pts</div>
+        <button class="next-btn" style="margin-top:12px" onclick="nextPlayer()">Next Player →</button>
+      </div>`;
+  }
+}
+
+// ═══ GAME ACTIONS ═══
+let stealVictim=-1;
+
+function rollMove(){
+  const die=document.getElementById('move-die');
+  if(!die)return;
+  die.classList.add('rolling');
+  setTimeout(()=>{
+    die.classList.remove('rolling');
+    const roll=d6();
+    positions[currentIdx]=Math.min(positions[currentIdx]+roll,40);
+    const pos=positions[currentIdx];
+    if(pos>=40){endGame();return;}
+    const slot=STEAL_SPACES.has(pos)?'steal':((pos-2)%5)+1;
+    currentCard=drawCard(slot==='steal'?Math.ceil(Math.random()*5):slot);
+    if(slot==='steal') currentCard.steal=true;
+    phase='question';
+    render();
+  },480);
+}
+
+function revealAnswer(){
+  phase='answer';
+  render();
+}
+
+function judgeCorrect(){
+  // Disable buttons immediately
+  document.querySelectorAll('.jbtn').forEach(b=>b.disabled=true);
+  if(currentCard.steal){
+    // Find victim (player with most points, not self)
+    const others=players.map((p,i)=>({i,pts:p.points})).filter(p=>p.i!==currentIdx);
+    if(!others.length){phase='points';render();return;}
+    stealVictim=others.sort((a,b)=>b.pts-a.pts)[0].i;
+    phase='steal';
+  } else {
+    phase='points';
+  }
+  render();
+}
+
+function judgeWrong(){
+  document.querySelectorAll('.jbtn').forEach(b=>b.disabled=true);
+  phase='wrong';
+  render();
+}
+
+function rollPoints(){
+  const die=document.getElementById('pts-die');
+  if(!die)return;
+  die.classList.add('rolling');
+  setTimeout(()=>{
+    die.classList.remove('rolling');
+    const roll=d6();
+    die.textContent=DIE[roll];
+    players[currentIdx].points+=roll;
+    setTimeout(()=>{
+      if(players[currentIdx].points>=targetPts){endGame();return;}
+      // Show points earned
+      const area=document.getElementById('slide-area');
+      const p=players[currentIdx];
+      area.querySelector('.pts-card').innerHTML=`
+        <div class="pts-result">+${roll} POINTS!</div>
+        <div class="pts-big">${roll}</div>
+        <div class="pts-roll-label">${p.name} now has ${p.points} pts</div>
+        <button class="next-btn" onclick="nextPlayer()">Next Player →</button>`;
+    },300);
+    renderScoreBar();
+  },480);
+}
+
+let stealRoll=0;
+function rollSteal(victimIdx){
+  const die=document.getElementById('steal-die');
+  if(!die)return;
+  die.classList.add('rolling');
+  setTimeout(()=>{
+    die.classList.remove('rolling');
+    const roll=d6();
+    die.textContent=DIE[roll];
+    stealAmt=roll;
+    players[currentIdx].points+=roll;
+    players[victimIdx].points-=roll; // can go negative
+    renderScoreBar();
+    setTimeout(()=>{
+      stealVictim=victimIdx;
+      phase='steal_result';
+      if(players[currentIdx].points>=targetPts){endGame();return;}
+      render();
+    },400);
+  },480);
+}
+
+function nextPlayer(){
+  currentIdx=(currentIdx+1)%players.length;
+  if(currentIdx===0) round++;
+  phase='roll';
+  render();
+}
+
+// ═══ END ═══
+function endGame(){
+  const sorted=[...players].map((p,i)=>({...p,origIdx:i})).sort((a,b)=>b.points-a.points);
+  const winner=sorted[0];
+  const medals=['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣'];
+
+  // Safely set each element only if it exists
+  const set = (id, val, prop='textContent') => {
+    const el = document.getElementById(id);
+    if(el) el[prop] = val;
+  };
+
+  set('win-name',  winner.animal + ' ' + winner.name);
+  set('win-crown', '🏆');
+  set('win-score', winner.points + ' POINTS');
+  set('win-jp',    winner.name + 'さん、おめでとうございます！');
+  set('final-list', sorted.map((p,i)=>`
+    <div class="fl-row${i===0?' top':''}">
+      <span>${medals[i]||''}</span>
+      <span style="font-size:1.3rem">${p.animal}</span>
+      <span style="flex:1;font-weight:${i===0?'700':'400'}">${p.name}</span>
+      <span class="fl-pts">${p.points} pts</span>
+    </div>`).join(''), 'innerHTML');
+
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('win').classList.add('active');
+}
+
+
+// ═══ INSTRUCTIONS ═══
+const INSTR_SLIDES = [
+  {
+    icon: '🎲',
+    en: 'WELCOME TO DICE MASTERY',
+    bodyEn: 'A classroom English game for 1–6 players.<br>Answer questions, earn points, steal from your rivals!',
+    jp: 'ダイス・マスタリーへようこそ！',
+    bodyJp: '1〜6人で遊べる英語の授業ゲームです。<br>質問に答えてポイントを稼ぎ、ライバルから奪い取ろう！',
+    extra: null
+  },
+  {
+    icon: '🏆',
+    en: 'HOW TO WIN',
+    bodyEn: 'Be the first player to reach the target score.<br>The teacher sets the target — 10, 15, 20 or 30 points.',
+    jp: '勝ち方',
+    bodyJp: '目標ポイントに最初に到達したプレイヤーの勝ちです。<br>先生が目標を設定します（10・15・20・30点）。',
+    extra: null
+  },
+  {
+    icon: '📋',
+    en: 'THE 5 CARD SLOTS',
+    bodyEn: 'Each turn you land on a space numbered 1–5.<br>That number tells you which card pile to draw from.',
+    jp: '5つのカードスロット',
+    bodyJp: '毎ターン、1〜5番のマスに止まります。<br>その番号のカードの山から引きます。',
+    extra: 'slots'
+  },
+  {
+    icon: '🎯',
+    en: 'YOUR TURN — 4 STEPS',
+    bodyEn: '<strong>① Roll</strong> the die — your piece moves that many spaces.<br><strong>② Read</strong> the card question aloud.<br><strong>③ Answer</strong> — teacher taps ✅ Correct or ❌ Wrong.<br><strong>④ Roll again</strong> for points if correct!',
+    jp: 'あなたのターン — 4ステップ',
+    bodyJp: '<strong>① サイコロを振る</strong> — その数だけ駒が進みます。<br><strong>② カードを読む</strong> — 質問を声に出して読みましょう。<br><strong>③ 答える</strong> — 先生が✅正解または❌不正解を押します。<br><strong>④ 再度振る</strong> — 正解したらポイントのためにサイコロを振ります！',
+    extra: null
+  },
+  {
+    icon: '🎯',
+    en: 'STEAL SPACE!',
+    bodyEn: 'Land on a <strong>🎯 Steal Space</strong> and answer correctly.<br>Then roll the die — steal that many points from the player with the most points!<br><span style="color:#f5837a;font-size:.85em">⚠ Their score can go negative!</span>',
+    jp: 'スチールスペース！',
+    bodyJp: '<strong>🎯 スチールスペース</strong>に止まって正解すると…<br>サイコロを振って、最もポイントの高いプレイヤーからその数を奪います！<br><span style="color:#f5837a;font-size:.85em">⚠ 相手のスコアはマイナスになることもあります！</span>',
+    extra: null
+  },
+  {
+    icon: '⭐',
+    en: 'SLOT 5 — SPEAK UP!',
+    bodyEn: 'Slot 5 cards are <strong>oral answers</strong>.<br>Say your answer aloud — the teacher decides if it is correct.<br>These are worth the most because they are the hardest!',
+    jp: 'スロット5 — 声に出そう！',
+    bodyJp: 'スロット5のカードは<strong>口頭での回答</strong>です。<br>答えを声に出して言いましょう — 先生が正解かどうか判断します。<br>一番難しいので、一番価値があります！',
+    extra: null
+  },
+];
+
+let instrIdx = 0;
+
+function renderInstrSlide(){
+  const s = INSTR_SLIDES[instrIdx];
+  const total = INSTR_SLIDES.length;
+
+  // Dots
+  document.getElementById('instr-dots').innerHTML = INSTR_SLIDES.map((_,i) =>
+    `<div class="instr-dot${i===instrIdx?' on':''}"></div>`).join('');
+
+  // Next button label
+  const nextBtn = document.getElementById('instr-next');
+  nextBtn.textContent = instrIdx === total-1 ? "Lets Play! →" : "Next →";
+
+  // Prev button
+  document.getElementById('instr-prev').disabled = instrIdx === 0;
+
+  // Slide content
+  let extra = '';
+  if(s.extra === 'slots'){
+    extra = `<div class="instr-slots">
+      <div class="instr-slot-chip" style="background:rgba(41,128,185,.15);border:1px solid rgba(41,128,185,.3)">
+        <span class="sc-icon">🖼</span>
+        <div class="sc-text"><span class="sc-en" style="color:#7ec8f5">Slot 1 · Visual</span><span class="sc-jp">絵を見て答える</span></div>
+      </div>
+      <div class="instr-slot-chip" style="background:rgba(39,174,96,.15);border:1px solid rgba(39,174,96,.3)">
+        <span class="sc-icon">📖</span>
+        <div class="sc-text"><span class="sc-en" style="color:#6edd9f">Slot 2 · Translation</span><span class="sc-jp">日本語→英語に訳す</span></div>
+      </div>
+      <div class="instr-slot-chip" style="background:rgba(201,152,10,.15);border:1px solid rgba(201,152,10,.3)">
+        <span class="sc-icon">✏️</span>
+        <div class="sc-text"><span class="sc-en" style="color:#f5c842">Slot 3 · Spelling</span><span class="sc-jp">英語のスペルを書く</span></div>
+      </div>
+      <div class="instr-slot-chip" style="background:rgba(230,126,34,.15);border:1px solid rgba(230,126,34,.3)">
+        <span class="sc-icon">💬</span>
+        <div class="sc-text"><span class="sc-en" style="color:#f5a55a">Slot 4 · Sentence</span><span class="sc-jp">文章を英語に訳す</span></div>
+      </div>
+      <div class="instr-slot-chip" style="background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.3);grid-column:1/-1">
+        <span class="sc-icon">⭐</span>
+        <div class="sc-text"><span class="sc-en" style="color:#f5837a">Slot 5 · Synthesis (Oral)</span><span class="sc-jp">声に出して自由に答える</span></div>
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('instr-slide').innerHTML = `
+    <div class="instr-icon">${s.icon}</div>
+    <div class="instr-en">${s.en}</div>
+    <div class="instr-body-en">${s.bodyEn}</div>
+    ${extra}
+    <div class="instr-divider"></div>
+    <div class="instr-jp">${s.jp}</div>
+    <div class="instr-body-jp">${s.bodyJp}</div>
+  `;
+}
+
+function instrNext(){
+  if(instrIdx < INSTR_SLIDES.length - 1){
+    instrIdx++;
+    renderInstrSlide();
+  } else {
+    skipInstr();
+  }
+}
+
+function instrPrev(){
+  if(instrIdx > 0){
+    instrIdx--;
+    renderInstrSlide();
+  }
+}
+
+function skipInstr(){
+  document.getElementById('instructions').classList.remove('active');
+  document.getElementById('setup').classList.add('active');
+}
+
+// ═══ INIT ═══
+renderInstrSlide();
+init();
+</script>
+</body>
+</html>
