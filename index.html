@@ -64,7 +64,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .code-input{background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.15);border-radius:14px;padding:16px 20px;color:#f0ebe0;font-size:2rem;font-family:'Bebas Neue',sans-serif;letter-spacing:.3em;text-align:center;width:100%;max-width:260px;outline:none}
 .code-input:focus{border-color:var(--gold)}
 .animal-pick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:360px}
-.animal-btn{aspect-ratio:1;border-radius:14px;border:2px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);font-size:2.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;position:relative}
+.animal-btn{aspect-ratio:1;border-radius:12px;border:2px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);font-size:1.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;position:relative}
 .animal-btn.selected{border-color:var(--gold);background:rgba(245,200,66,.15);transform:scale(1.08)}
 .animal-btn.taken{opacity:.3;cursor:not-allowed}
 .animal-btn.taken::after{content:'✕';position:absolute;font-size:1rem;color:#e74c3c}
@@ -249,6 +249,44 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .speak-btn-dark{background:rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.15);color:rgba(26,26,26,.6)}
 .speak-btn-dark.speaking{background:rgba(39,174,96,.15);border-color:#27ae60;color:#27ae60}
 
+
+/* ── TEACHER MODE ── */
+#teacher-home{align-items:center;justify-content:center;gap:16px;padding:24px;background:radial-gradient(ellipse at 50% 0%,#1a3328,var(--bg))}
+.class-input{background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.15);border-radius:14px;padding:14px 20px;color:#f0ebe0;font-size:1.4rem;font-family:'Bebas Neue',sans-serif;letter-spacing:.2em;text-align:center;width:100%;max-width:320px;outline:none}
+.class-input:focus{border-color:var(--gold)}
+.class-input::placeholder{color:rgba(240,235,224,.2);font-size:1rem;letter-spacing:.1em}
+
+/* ── SPECTATOR HUB ── */
+#spectator-hub{align-items:center;padding:14px;gap:0;background:var(--bg)}
+.hub-header{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:560px;margin-bottom:12px;flex-shrink:0}
+.hub-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.1em;color:var(--gold)}
+.hub-class{font-size:.65rem;color:rgba(240,235,224,.3);font-family:'DM Sans',sans-serif;letter-spacing:.1em;text-transform:uppercase}
+.hub-back{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:6px 14px;color:rgba(240,235,224,.5);font-size:.75rem;font-family:'DM Sans',sans-serif;cursor:pointer}
+.hub-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:560px;flex:1;overflow-y:auto;padding-bottom:10px}
+.room-card{background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:all .2s;position:relative;min-height:130px}
+.room-card:hover{border-color:rgba(245,200,66,.3);background:rgba(245,200,66,.05)}
+.room-card.active-game{border-color:rgba(39,174,96,.4);background:rgba(39,174,96,.06)}
+.room-card.lobby-state{border-color:rgba(41,128,185,.3);background:rgba(41,128,185,.06)}
+.room-card.empty{opacity:.4;cursor:default}
+.room-card-code{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.2em;color:var(--gold);line-height:1}
+.room-card-status{font-size:.62rem;text-transform:uppercase;letter-spacing:.12em;font-family:'DM Sans',sans-serif}
+.room-card-status.playing{color:#27ae60}
+.room-card-status.waiting{color:#3498db}
+.room-card-status.empty{color:rgba(240,235,224,.2)}
+.room-card-animals{font-size:1.2rem;letter-spacing:2px}
+.room-card-round{font-size:.65rem;color:rgba(240,235,224,.3);font-family:'DM Sans',sans-serif}
+.room-card-current{font-size:.7rem;color:rgba(240,235,224,.5);font-family:'DM Sans',sans-serif;background:rgba(0,0,0,.2);border-radius:6px;padding:3px 8px;align-self:flex-start}
+.room-scores{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
+.room-score-chip{background:rgba(0,0,0,.25);border-radius:6px;padding:2px 6px;font-size:.6rem;font-family:'Bebas Neue',sans-serif;color:var(--gold)}
+.hub-refresh{font-size:.65rem;color:rgba(240,235,224,.2);text-align:center;font-family:'DM Sans',sans-serif;padding:4px;flex-shrink:0}
+
+/* ── SPECTATE SCREEN ── */
+#spectate{background:var(--bg)}
+.spec-header{display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(0,0,0,.4);border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0}
+.spec-back{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:5px 12px;color:rgba(240,235,224,.5);font-size:.7rem;font-family:'DM Sans',sans-serif;cursor:pointer;flex-shrink:0}
+.spec-room-info{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.1em;color:var(--gold)}
+.spec-live{background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.3);border-radius:6px;padding:2px 8px;font-size:.6rem;color:#e74c3c;font-family:'DM Sans',sans-serif;letter-spacing:.1em;animation:pulse 1.5s infinite;margin-left:auto}
+
 /* ── BOTTOM NAV ── */
 .bottom-nav{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(0,0,0,.35);border-top:1px solid rgba(255,255,255,.06);flex-shrink:0}
 .bnav-info{font-size:.62rem;font-family:'DM Sans',sans-serif;text-transform:uppercase;letter-spacing:.12em;color:rgba(240,235,224,.25)}
@@ -276,10 +314,53 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
     <div class="logo" id="logo-tap" onclick="logoTap()" style="cursor:pointer;user-select:none">🎲<br>DICE<br>MASTERY</div>
     <div class="logo-sub">Classroom Edition</div>
     <div class="home-btns">
-      <button class="btn btn-gold" onclick="goTeacher()">🏠 Create a Room</button>
+      <button class="btn btn-gold" onclick="goStudent()">🎒 Join a Room</button>
       <div class="home-or">— or —</div>
-      <button class="btn btn-surface" onclick="goStudent()">🎒 Join a Room</button>
+      <button class="btn btn-surface" onclick="goTeacher()">🏠 Create a Room</button>
+      <button class="btn btn-ghost" onclick="goTeacherMode()">👨‍🏫 Teacher Spectator</button>
     </div>
+  </div>
+</div>
+
+
+<!-- ══ TEACHER HOME ══ -->
+<div id="teacher-home" class="screen">
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;background:radial-gradient(ellipse at 50% 0%,#1a3328,var(--bg))">
+    <div style="font-size:3rem">👨‍🏫</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.1em;color:var(--gold);text-align:center">TEACHER MODE</div>
+    <div style="font-family:'Noto Sans JP','Hiragino Sans',sans-serif;font-size:.85rem;color:rgba(240,235,224,.4);text-align:center;max-width:320px">Enter a class code to watch all 6 rooms live.<br>先生用モード — ルームコードを入力して観戦</div>
+    <input class="class-input" id="class-code-input" type="text" placeholder="e.g. PERIOD3" maxlength="10" oninput="this.value=this.value.toUpperCase()">
+    <div style="font-size:.7rem;color:rgba(240,235,224,.3);font-family:'DM Sans',sans-serif;text-align:center">Tell students to enter this same code<br>when creating their rooms</div>
+    <button class="btn btn-gold" onclick="enterSpectatorHub()" style="max-width:320px">👁 Watch Rooms →</button>
+    <button class="btn btn-ghost" onclick="showHome()" style="max-width:320px">← Back</button>
+  </div>
+</div>
+
+<!-- ══ SPECTATOR HUB ══ -->
+<div id="spectator-hub" class="screen">
+  <div class="hub-header">
+    <div>
+      <div class="hub-title">👁 SPECTATOR HUB</div>
+      <div class="hub-class" id="hub-class-label"></div>
+    </div>
+    <button class="hub-back" onclick="leaveSpectatorHub()">← Back</button>
+  </div>
+  <div class="hub-grid" id="hub-grid"></div>
+  <div class="hub-refresh" id="hub-refresh">Auto-refreshing every 5s</div>
+</div>
+
+<!-- ══ SPECTATE ROOM ══ -->
+<div id="spectate" class="screen">
+  <div class="spec-header">
+    <button class="spec-back" onclick="leaveSpectate()">← Hub</button>
+    <div class="spec-room-info" id="spec-room-info">Room ----</div>
+    <div class="spec-live">● LIVE</div>
+  </div>
+  <div class="score-bar" id="spec-score-bar"></div>
+  <div class="slide-area" id="spec-slide-area"></div>
+  <div class="bottom-nav">
+    <div class="bnav-info" id="spec-bnav-info">Spectating</div>
+    <div style="font-size:.65rem;color:rgba(240,235,224,.2);font-family:'DM Sans',sans-serif">👁 View only</div>
   </div>
 </div>
 
@@ -289,15 +370,10 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
     <div class="logo" style="font-size:2rem">🎲 CREATE ROOM</div>
     <div class="setup-box">
       <h2>GAME SETTINGS</h2>
+      <div style="font-size:.75rem;color:rgba(240,235,224,.5);font-family:'DM Sans',sans-serif">Class code (optional — for teacher spectator)</div>
+      <input id="class-code-setup" type="text" placeholder="e.g. PERIOD3" maxlength="10" oninput="this.value=this.value.toUpperCase()" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;color:#f0ebe0;font-size:.9rem;font-family:'DM Sans',sans-serif;width:100%;outline:none;letter-spacing:.1em">
       <div style="font-size:.75rem;color:rgba(240,235,224,.5);font-family:'DM Sans',sans-serif;text-align:center">Pick your animal</div>
-      <div class="animal-pick" id="setup-animal-pick" style="max-width:320px;margin:0 auto">
-        <button class="animal-btn" onclick="setupPickAnimal(this,'🐕')">🐕</button>
-        <button class="animal-btn" onclick="setupPickAnimal(this,'🐈')">🐈</button>
-        <button class="animal-btn" onclick="setupPickAnimal(this,'🐸')">🐸</button>
-        <button class="animal-btn" onclick="setupPickAnimal(this,'🐔')">🐔</button>
-        <button class="animal-btn" onclick="setupPickAnimal(this,'🐇')">🐇</button>
-        <button class="animal-btn" onclick="setupPickAnimal(this,'🐄')">🐄</button>
-      </div>
+      <div class="animal-pick" id="setup-animal-pick" style="grid-template-columns:repeat(5,1fr);max-width:380px;margin:0 auto;gap:8px"></div>
       <div class="points-row">
         <label>First to reach:</label>
         <select class="points-select" id="target-pts">
@@ -321,14 +397,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
     <input class="code-input" id="room-code-input" type="number" placeholder="0000" maxlength="4" oninput="this.value=this.value.slice(0,4)">
     <div style="font-size:.75rem;color:rgba(240,235,224,.4);font-family:'DM Sans',sans-serif">Enter the 4-digit room code from your teacher</div>
     <div style="font-size:.8rem;color:var(--gold);font-family:'Bebas Neue',sans-serif;letter-spacing:.1em">PICK YOUR ANIMAL / どうぶつを選んでね</div>
-    <div class="animal-pick" id="animal-pick">
-      <button class="animal-btn" onclick="pickAnimal('🐕')">🐕</button>
-      <button class="animal-btn" onclick="pickAnimal('🐈')">🐈</button>
-      <button class="animal-btn" onclick="pickAnimal('🐸')">🐸</button>
-      <button class="animal-btn" onclick="pickAnimal('🐔')">🐔</button>
-      <button class="animal-btn" onclick="pickAnimal('🐇')">🐇</button>
-      <button class="animal-btn" onclick="pickAnimal('🐄')">🐄</button>
-    </div>
+    <div class="animal-pick" id="animal-pick" style="grid-template-columns:repeat(5,1fr);max-width:400px;gap:8px"></div>
     <div class="join-err" id="join-err"></div>
     <button class="btn btn-gold" onclick="joinRoom()" id="join-btn" disabled>Enter Room →</button>
     <button class="btn btn-ghost" onclick="showHome()" style="max-width:360px">← Back</button>
@@ -459,7 +528,7 @@ const db = firebase.database();
 // ════════════════════════════════
 // GAME DATA
 // ════════════════════════════════
-const ANIMALS = ['🐕','🐈','🐸','🐔','🐇','🐄'];
+const ANIMALS = ['🐕','🐈','🐸','🐔','🐇','🐄','🦊','🐼','🐨','🦁','🐯','🐷','🐧','🦋','🦄','🐲','🐙','🦈','🦅','🦉','🐺','🐻','🦝','🦦','🐿','🐝','🦩','🦖','🦕','🐬'];
 const DIE = ['','⚀','⚁','⚂','⚃','⚄','⚅'];
 const SLOT_NAMES = {1:'Visual 🖼',2:'Translation 📖',3:'Spelling ✏️',4:'Sentence 💬',5:'Synthesis ⭐'};
 
@@ -674,7 +743,7 @@ function showScreen(id){
   document.getElementById(id).classList.add('active');
 }
 function showHome(){ showScreen('home'); }
-function goTeacher(){ showScreen('setup'); }
+function goTeacher(){ showScreen('setup'); selectedAnimal=null; renderAnimalGrid('setup-animal-pick','setupPickAnimal'); }
 function goStudent(){ showScreen('join'); resetJoinUI(); }
 
 // ════════════════════════════════
@@ -690,8 +759,9 @@ async function createRoom(){
   localTargetPts = parseInt(document.getElementById('target-pts').value);
 
   roomRef = db.ref('rooms/' + roomId);
+  const classCode = document.getElementById('class-code-setup')?.value.trim().toUpperCase() || '';
   await roomRef.set({
-    config:{ targetPts: localTargetPts, createdAt: Date.now(), sessionId },
+    config:{ targetPts: localTargetPts, createdAt: Date.now(), sessionId, classCode },
     gameState:{ phase:'lobby', scores:{}, round:1, currentAnimal:null, currentCard:null },
     players:{ [encodeAnimal(myAnimal)]: { animal: myAnimal, joinedAt: Date.now() } },
     feedback:{}
@@ -707,10 +777,19 @@ async function createRoom(){
 // JOIN ROOM (student)
 // ════════════════════════════════
 let selectedAnimal = null;
-function setupPickAnimal(btn, a){
+function setupPickAnimal(a){
   selectedAnimal = a;
-  document.querySelectorAll('#setup-animal-pick .animal-btn').forEach(b=>b.classList.remove('selected'));
-  btn.classList.add('selected');
+  renderAnimalGrid('setup-animal-pick', 'setupPickAnimal');
+}
+
+function renderAnimalGrid(containerId, onClickFn, takenList=[]){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  el.innerHTML = ANIMALS.map(a => {
+    const taken = takenList.includes(a);
+    const selected = selectedAnimal === a;
+    return `<button class="animal-btn${selected?' selected':''}${taken?' taken':''}" onclick="${onClickFn}('${a}')">${a}</button>`;
+  }).join('');
 }
 
 function resetJoinUI(){
@@ -718,13 +797,13 @@ function resetJoinUI(){
   document.getElementById('room-code-input').value = '';
   document.getElementById('join-err').textContent = '';
   document.getElementById('join-btn').disabled = true;
-  document.querySelectorAll('.animal-btn').forEach(b=>{ b.classList.remove('selected','taken'); });
+  renderAnimalGrid('animal-pick', 'pickAnimal');
 }
 function pickAnimal(a){
+  const takenBtns = [...document.querySelectorAll('#animal-pick .animal-btn.taken')].map(b=>b.textContent);
+  if(takenBtns.includes(a)) return;
   selectedAnimal = a;
-  document.querySelectorAll('.animal-btn').forEach(b=>b.classList.remove('selected'));
-  const btns = document.querySelectorAll('.animal-btn');
-  ANIMALS.forEach((an,i)=>{ if(an===a && !btns[i].classList.contains('taken')) btns[i].classList.add('selected'); });
+  renderAnimalGrid('animal-pick', 'pickAnimal', takenBtns);
   checkJoinReady();
 }
 function checkJoinReady(){
@@ -740,12 +819,11 @@ document.getElementById('room-code-input').addEventListener('input', ()=>{
 async function checkTakenAnimals(code){
   try {
     const snap = await db.ref('rooms/'+code+'/players').once('value');
-    const taken = snap.val() ? Object.keys(snap.val()) : [];
-    document.querySelectorAll('.animal-btn').forEach((b,i)=>{
-      const an = ANIMALS[i];
-      b.classList.toggle('taken', taken.includes(an));
-      if(taken.includes(an) && selectedAnimal===an){ selectedAnimal=null; b.classList.remove('selected'); checkJoinReady(); }
-    });
+    const players = snap.val() || {};
+    const takenHex = Object.keys(players);
+    const takenAnimals = takenHex.map(h=>{ try{ return decodeAnimal(h); }catch(e){ return ''; } });
+    if(takenAnimals.includes(selectedAnimal)){ selectedAnimal=null; checkJoinReady(); }
+    renderAnimalGrid('animal-pick', 'pickAnimal', takenAnimals);
   } catch(e){}
 }
 async function joinRoom(){
@@ -1357,6 +1435,187 @@ function leaveRoom(){
   }
   roomId=null; roomRef=null; isHost=false; myAnimal=null; localPlayers=[];
   showHome();
+}
+
+
+// ════════════════════════════════
+// TEACHER SPECTATOR MODE
+// ════════════════════════════════
+let teacherClassCode = '';
+let hubInterval = null;
+let spectateRoomId = null;
+let spectateListener = null;
+
+function goTeacherMode(){
+  showScreen('teacher-home');
+  document.getElementById('class-code-input').value = '';
+}
+
+function enterSpectatorHub(){
+  const code = document.getElementById('class-code-input').value.trim().toUpperCase();
+  if(!code){ alert('Enter a class code first!'); return; }
+  teacherClassCode = code;
+  document.getElementById('hub-class-label').textContent = 'Class: ' + code;
+  showScreen('spectator-hub');
+  loadHubRooms();
+  // Auto-refresh every 5 seconds
+  if(hubInterval) clearInterval(hubInterval);
+  hubInterval = setInterval(loadHubRooms, 5000);
+}
+
+async function loadHubRooms(){
+  const grid = document.getElementById('hub-grid');
+  try {
+    const snap = await db.ref('rooms').orderByChild('config/classCode').equalTo(teacherClassCode).once('value');
+    const rooms = snap.val() || {};
+    const roomList = Object.entries(rooms).map(([code, data])=>({code, data}))
+      .sort((a,b)=>(b.data.config?.createdAt||0)-(a.data.config?.createdAt||0))
+      .slice(0, 6); // max 6 rooms
+
+    if(roomList.length === 0){
+      grid.innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:30px;color:rgba(240,235,224,.3);font-family:'Noto Sans JP','DM Sans',sans-serif;font-size:.9rem">
+          No rooms found for class <strong style="color:var(--gold)">${teacherClassCode}</strong><br><br>
+          Tell students to enter <strong style="color:var(--gold)">${teacherClassCode}</strong> as their class code when creating a room.
+        </div>`;
+      return;
+    }
+
+    // Pad to 6 slots
+    while(roomList.length < 6) roomList.push(null);
+
+    grid.innerHTML = roomList.map((r, i) => {
+      if(!r) return `<div class="room-card empty"><div class="room-card-code">----</div><div class="room-card-status empty">Empty Slot</div></div>`;
+      const state = r.data.gameState || {};
+      const players = r.data.players ? Object.values(r.data.players) : [];
+      const animals = players.map(p=>p.animal).join('');
+      const phase = state.phase || 'lobby';
+      const isPlaying = phase !== 'lobby' && phase !== 'win';
+      const isLobby = phase === 'lobby';
+      const scores = state.scores ? Object.entries(state.scores).map(([hex,pts])=>({a:decodeAnimal(hex),pts})).sort((a,b)=>b.pts-a.pts) : [];
+
+      return `<div class="room-card ${isPlaying?'active-game':isLobby?'lobby-state':''}" onclick="spectateRoom('${r.code}')">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div class="room-card-code">${r.code}</div>
+          <div class="room-card-status ${isPlaying?'playing':'waiting'}">${isPlaying?'● Playing':'◎ Lobby'}</div>
+        </div>
+        <div class="room-card-animals">${animals||'—'}</div>
+        ${isPlaying?`<div class="room-card-current">🎲 ${state.currentAnimal||'?'}'s turn · Round ${state.round||1}</div>`:''}
+        ${scores.length?`<div class="room-scores">${scores.slice(0,3).map(s=>`<div class="room-score-chip">${s.a} ${s.pts}</div>`).join('')}</div>`:''}
+        <div class="room-card-round">${players.length} player${players.length!==1?'s':''} · Tap to spectate</div>
+      </div>`;
+    }).join('');
+
+  } catch(e){
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:20px;color:#e74c3c;font-size:.8rem">Connection error</div>`;
+  }
+}
+
+function leaveSpectatorHub(){
+  if(hubInterval) clearInterval(hubInterval);
+  hubInterval = null;
+  showScreen('teacher-home');
+}
+
+function spectateRoom(code){
+  spectateRoomId = code;
+  document.getElementById('spec-room-info').textContent = 'Room ' + code;
+  showScreen('spectate');
+
+  // Listen to this room's game state
+  if(spectateListener) db.ref('rooms/'+spectateRoomId+'/gameState').off('value', spectateListener);
+  spectateListener = db.ref('rooms/'+spectateRoomId+'/gameState').on('value', snap=>{
+    const state = snap.val();
+    if(!state) return;
+    renderSpectateView(state);
+  });
+}
+
+function leaveSpectate(){
+  if(spectateListener) db.ref('rooms/'+spectateRoomId+'/gameState').off('value', spectateListener);
+  spectateListener = null;
+  spectateRoomId = null;
+  showScreen('spectator-hub');
+}
+
+function renderSpectateView(state){
+  // Score bar
+  const animals = state.animalList || [];
+  const scores = {};
+  if(state.scores) Object.entries(state.scores).forEach(([hex,pts])=>{ scores[decodeAnimal(hex)]=pts; });
+  const cur = state.currentAnimal;
+
+  document.getElementById('spec-score-bar').innerHTML = animals.map(a=>`
+    <div class="sc${a===cur?' active':''}">
+      <div class="sa">${a}</div>
+      <div class="sp">${scores[a]||0}</div>
+    </div>`).join('');
+
+  document.getElementById('spec-bnav-info').textContent = `Room ${spectateRoomId} · Round ${state.round||1}`;
+
+  const area = document.getElementById('spec-slide-area');
+  const phase = state.phase;
+
+  if(phase === 'lobby'){
+    area.innerHTML = `<div class="roll-card"><div class="turn-label">Waiting to start</div><div class="turn-animal">⏳</div><div class="watching-label">${animals.length} players in lobby</div></div>`;
+    return;
+  }
+  if(phase === 'win'){
+    area.innerHTML = `<div class="pts-card"><div class="pts-result">🏆 GAME OVER</div><div class="turn-animal">${cur}</div><div class="pts-roll-label">Winner: ${cur}</div></div>`;
+    return;
+  }
+  if(phase === 'roll'){
+    area.innerHTML = `<div class="roll-card"><div class="turn-label">Rolling...</div><div class="turn-animal">${cur}</div><div class="watching-label">${cur} is rolling the die</div></div>`;
+    return;
+  }
+  if(phase === 'question'){
+    const c = state.currentCard;
+    if(!c) return;
+    const cls = c.steal?'steal-card':`slot-${c.slot}`;
+    const slotLabel = c.steal?'🎯 STEAL!':SLOT_NAMES[c.slot];
+    area.innerHTML = `
+      <div class="q-card ${cls}">
+        <div class="q-hdr"><span class="q-slot-label">${slotLabel}</span><span>${cur}</span></div>
+        <div class="q-body">
+          <div class="q-main">${c.q}</div>
+          <div class="q-tap-hint" style="color:#888">Waiting for answer...</div>
+        </div>
+        <div class="q-ftr"><div class="q-player-chip"><span>${cur}</span></div></div>
+      </div>`;
+    return;
+  }
+  if(phase === 'answer'){
+    const c = state.currentCard;
+    if(!c) return;
+    const color=['','var(--s1)','var(--s2)','var(--s3)','var(--s4)','var(--s5)'][c.slot]||'#888';
+    area.innerHTML = `
+      <div class="a-card slot-${c.slot}">
+        <div class="a-hdr" style="background:${color}20;border-bottom:2px solid ${color}">
+          <span style="font-size:1.2rem">${cur}</span>
+          <div><div class="a-hdr-label">${SLOT_NAMES[c.slot]}</div></div>
+        </div>
+        <div class="a-body">
+          <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.15em;color:rgba(26,26,26,.35);margin-bottom:6px">Model Answer</div>
+          <div class="a-answer">${c.a}</div>
+        </div>
+        <div style="background:#f5f5f5;padding:10px;text-align:center;font-size:.8rem;color:#999">Group judging...</div>
+      </div>`;
+    return;
+  }
+  if(phase === 'points'){
+    area.innerHTML = `<div class="pts-card"><div class="pts-result">✅ CORRECT!</div><div class="turn-animal">${cur}</div><div class="pts-roll-label">Rolling for points...</div></div>`;
+    return;
+  }
+  if(phase === 'wrong'){
+    const c = state.currentCard;
+    area.innerHTML = `<div class="wrong-card"><div class="wrong-icon">❌</div><div class="wrong-label">INCORRECT</div><div class="wrong-ans">${c?c.a:''}</div></div>`;
+    return;
+  }
+  if(phase === 'steal' || phase === 'steal_result'){
+    const amt = state.stealAmt||'?';
+    area.innerHTML = `<div class="steal-result-card"><div style="font-size:2.5rem">🎯</div><div class="steal-headline">${phase==='steal_result'?cur+' STEALS '+amt+'!':'STEAL!'}</div><div class="steal-detail">From: ${state.stealVictim||'?'}</div></div>`;
+    return;
+  }
 }
 
 // ════════════════════════════════
