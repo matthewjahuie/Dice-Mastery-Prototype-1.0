@@ -896,17 +896,18 @@ function renderGameFromState(state){
   document.getElementById('bnav-info').textContent = `Round ${localRound}`;
   const area = document.getElementById('slide-area');
   const currentAnimal = state.currentAnimal;
-  const amActive = isHost; // only teacher controls the game
-  const p = { animal: currentAnimal, name: currentAnimal };
+  // isMyTurn = I am the current player (I roll, I reveal)
+  // everyone can judge and advance
 
   if(state.phase === 'roll'){
+    const canRoll = isMyTurn;
     area.innerHTML = `
       <div class="roll-card">
-        <div class="turn-label">It's your turn!</div>
+        <div class="turn-label">${isMyTurn ? "It's your turn!" : currentAnimal + "'s turn"}</div>
         <div class="turn-animal">${currentAnimal}</div>
-        <div class="roll-instruction">Roll 1–5 to move · Roll ⚅ 6 to STEAL!</div>
-        <div class="die-btn${(isMyTurn||isHost)?'':' disabled-die'}" id="move-die" onclick="${(isMyTurn||isHost)?'hostRollMove()':''}">🎲</div>
-        ${!isMyTurn && !isHost?`<div class="watching-label">👁 Watching ${localPlayers[localCurrentIdx]||''}...</div>`:'<div class="watching-label" style="opacity:0">_</div>'}
+        <div class="roll-instruction">Roll 1–5 · Roll ⚅ 6 = STEAL!</div>
+        <div class="die-btn${canRoll?'':' disabled-die'}" id="move-die" onclick="${canRoll?'hostRollMove()':''}">🎲</div>
+        ${!isMyTurn?`<div class="watching-label">👁 ${currentAnimal} is rolling...</div>`:''}
       </div>`;
   }
   else if(state.phase === 'question'){
@@ -915,13 +916,14 @@ function renderGameFromState(state){
     const isSteal = c.steal;
     const cls = isSteal?'steal-card':`slot-${c.slot}`;
     const slotLabel = isSteal?'🎯 STEAL!':SLOT_NAMES[c.slot];
+    const canReveal = isMyTurn;
     area.innerHTML = `
-      <div class="q-card ${cls}" onclick="${amActive?'hostRevealAnswer()':''}">
+      <div class="q-card ${cls}" onclick="${canReveal?'hostRevealAnswer()':''}">
         <div class="q-hdr"><span class="q-slot-label">${slotLabel}</span><span>${currentAnimal}</span></div>
         <div class="q-body">
           <div class="q-main">${c.q}</div>
           ${c.slot!==1?`<div class="q-speak-row"><button class="speak-btn" onclick="event.stopPropagation();replaySpeakCard()">🔊 Hear</button></div>`:''}
-          <div class="q-tap-hint">${(isMyTurn||isHost)?'tap to reveal answer':'waiting for '+localPlayers[localCurrentIdx]+'...'}</div>
+          <div class="q-tap-hint">${canReveal?'tap to reveal answer':currentAnimal+' reveals the answer...'}</div>
         </div>
         <div class="q-ftr"><div class="q-player-chip"><span>${currentAnimal}</span></div><div style="font-size:.65rem;opacity:.4">Slot ${c.slot}</div></div>
       </div>`;
@@ -931,6 +933,7 @@ function renderGameFromState(state){
     const c = state.currentCard;
     if(!c){ return; }
     const color=['','var(--s1)','var(--s2)','var(--s3)','var(--s4)','var(--s5)'][c.slot]||'#888';
+    // EVERYONE can judge — first tap wins (phase check in handler prevents double)
     area.innerHTML = `
       <div class="a-card slot-${c.slot}">
         <div class="a-hdr" style="background:${color}20;border-bottom:2px solid ${color}">
@@ -942,22 +945,27 @@ function renderGameFromState(state){
           <div class="a-answer" style="font-size:clamp(1.3rem,4vw,2.2rem)">${c.a}</div>
           <div style="display:flex;justify-content:center;margin-top:10px"><button class="speak-btn speak-btn-dark" onclick="speakAnswer(localCurrentCard)">🔊 Hear it</button></div>
         </div>
-        <div style="background:#f9f9f9;padding:8px 14px;text-align:center;font-size:.72rem;color:rgba(26,26,26,.4);font-family:'Noto Sans JP','DM Sans',sans-serif">先生が判定します / Teacher judges</div>
-        <div class="judge-row"><button class="jbtn correct" id="judge-correct-btn" onclick="hostJudgeCorrect()">✅ 正解</button><button class="jbtn wrong" id="judge-wrong-btn" onclick="hostJudgeWrong()">❌ 不正解</button></div>
+        <div style="background:#f9f9f9;padding:8px 14px;text-align:center;font-size:.72rem;color:rgba(26,26,26,.4);font-family:'Noto Sans JP','DM Sans',sans-serif">グループで判定！/ Group judges together</div>
+        <div class="judge-row">
+          <button class="jbtn correct" onclick="hostJudgeCorrect()">✅ 正解</button>
+          <button class="jbtn wrong" onclick="hostJudgeWrong()">❌ 不正解</button>
+        </div>
       </div>`;
     setTimeout(()=>speakAnswer(c), 300);
   }
   else if(state.phase === 'points'){
+    const canRoll = isMyTurn;
     area.innerHTML = `
       <div class="pts-card">
         <div class="pts-result">✅ CORRECT!</div>
         <div class="turn-animal">${currentAnimal}</div>
-        <div class="pts-roll-label">${currentAnimal} — ${amActive?'tap the die to earn points':'waiting...'}</div>
-        <div class="die-btn${(isMyTurn||isHost)?'':' disabled-die'}" id="pts-die" onclick="${(isMyTurn||isHost)?'hostRollPoints()':''}">🎲</div>
+        <div class="pts-roll-label">${isMyTurn?'Tap the die to earn points!':currentAnimal+' is rolling for points...'}</div>
+        <div class="die-btn${canRoll?'':' disabled-die'}" id="pts-die" onclick="${canRoll?'hostRollPoints()':''}">🎲</div>
       </div>`;
   }
   else if(state.phase === 'wrong'){
     const c = state.currentCard;
+    // EVERYONE can tap Next Player
     area.innerHTML = `
       <div class="wrong-card">
         <div class="wrong-icon">❌</div>
@@ -971,19 +979,21 @@ function renderGameFromState(state){
   }
   else if(state.phase === 'steal'){
     const victim = state.stealVictim;
+    const canRoll = isMyTurn;
     area.innerHTML = `
       <div class="steal-result-card">
         <div style="font-size:2.5rem">🎯</div>
         <div class="steal-headline">STEAL!</div>
         <div class="turn-animal">${currentAnimal}</div>
-        <div class="steal-detail">${currentAnimal} answered correctly!<br>Tap die to steal from <strong>${victim||'?'}</strong></div>
-        <div class="die-btn${(isMyTurn||isHost)?'':' disabled-die'}" id="steal-die" onclick="${(isMyTurn||isHost)?'hostRollSteal()':''}">🎲</div>
+        <div class="steal-detail">${currentAnimal} answered correctly!<br>${isMyTurn?'Tap die to steal from':'Waiting for '+currentAnimal+' to steal from'} <strong>${victim||'?'}</strong></div>
+        <div class="die-btn${canRoll?'':' disabled-die'}" id="steal-die" onclick="${canRoll?'hostRollSteal()':''}">🎲</div>
       </div>`;
   }
   else if(state.phase === 'steal_result'){
     const victim = state.stealVictim;
     const amt = state.stealAmt || 0;
     const victimScore = localScores[victim] || 0;
+    // EVERYONE can tap Next Player
     area.innerHTML = `
       <div class="steal-result-card">
         <div style="font-size:2.5rem">💸</div>
@@ -1008,8 +1018,7 @@ function drawCard(slot){
 }
 
 function hostRollMove(){
-  const state_check = roomRef ? true : false;
-  if(!state_check) return;
+  if(!isMyTurn && !isHost) return;
   const die = document.getElementById('move-die');
   if(!die||die.classList.contains('disabled-die')) return;
   die.classList.add('rolling');
