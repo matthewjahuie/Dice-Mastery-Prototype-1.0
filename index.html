@@ -206,8 +206,9 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .choice-btn{flex:1;min-width:80px;padding:10px 8px;border-radius:10px;border:2px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:rgba(240,235,224,.7);font-family:'Noto Sans JP','Hiragino Sans',sans-serif;font-size:clamp(.72rem,2.2vw,.85rem);cursor:pointer;transition:all .15s;text-align:center;line-height:1.4}
 .choice-btn.selected{border-color:var(--gold);background:rgba(245,200,66,.15);color:var(--gold);font-weight:700}
 .check-row{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.check-btn{padding:9px 10px;border-radius:10px;border:2px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:rgba(240,235,224,.65);font-family:'Noto Sans JP','Hiragino Sans',sans-serif;font-size:clamp(.68rem,2vw,.8rem);cursor:pointer;transition:all .15s;text-align:center;line-height:1.4}
-.check-btn.selected{border-color:#e74c3c;background:rgba(231,76,60,.15);color:#f5837a;font-weight:700}
+.check-btn{padding:12px 10px;border-radius:12px;border:3px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:rgba(240,235,224,.55);font-family:'Noto Sans JP','Hiragino Sans',sans-serif;font-size:clamp(.72rem,2vw,.85rem);cursor:pointer;transition:all .18s;text-align:center;line-height:1.5;position:relative}
+.check-btn.selected{border-color:var(--gold);background:rgba(245,200,66,.2);color:#fff;font-weight:700;transform:scale(1.04);box-shadow:0 0 0 3px rgba(245,200,66,.35)}
+.check-btn.selected::after{content:'✓';position:absolute;top:5px;right:8px;font-size:.75rem;color:var(--gold);font-weight:900}
 .fb-submit{background:var(--gold);color:var(--ink);border:none;border-radius:12px;padding:14px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;width:100%;opacity:.4;transition:opacity .2s}
 .fb-submit.ready{opacity:1}
 .fb-done{background:rgba(39,174,96,.15);border:2px solid #27ae60;border-radius:14px;padding:20px;text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
@@ -275,9 +276,9 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
     <div class="logo" id="logo-tap" onclick="logoTap()" style="cursor:pointer;user-select:none">🎲<br>DICE<br>MASTERY</div>
     <div class="logo-sub">Classroom Edition</div>
     <div class="home-btns">
-      <button class="btn btn-gold" onclick="goTeacher()">👨‍🏫 I am the Teacher</button>
+      <button class="btn btn-gold" onclick="goTeacher()">🏠 Create a Room</button>
       <div class="home-or">— or —</div>
-      <button class="btn btn-surface" onclick="goStudent()">🎒 Join a Game</button>
+      <button class="btn btn-surface" onclick="goStudent()">🎒 Join a Room</button>
     </div>
   </div>
 </div>
@@ -285,9 +286,18 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 <!-- ══ SETUP (teacher) ══ -->
 <div id="setup" class="screen">
   <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:20px;background:radial-gradient(ellipse at 50% 0%,#1a3328,var(--bg))">
-    <div class="logo" style="font-size:2rem">🎲 DICE MASTERY</div>
+    <div class="logo" style="font-size:2rem">🎲 CREATE ROOM</div>
     <div class="setup-box">
       <h2>GAME SETTINGS</h2>
+      <div style="font-size:.75rem;color:rgba(240,235,224,.5);font-family:'DM Sans',sans-serif;text-align:center">Pick your animal</div>
+      <div class="animal-pick" id="setup-animal-pick" style="max-width:320px;margin:0 auto">
+        <button class="animal-btn" onclick="setupPickAnimal(this,'🐕')">🐕</button>
+        <button class="animal-btn" onclick="setupPickAnimal(this,'🐈')">🐈</button>
+        <button class="animal-btn" onclick="setupPickAnimal(this,'🐸')">🐸</button>
+        <button class="animal-btn" onclick="setupPickAnimal(this,'🐔')">🐔</button>
+        <button class="animal-btn" onclick="setupPickAnimal(this,'🐇')">🐇</button>
+        <button class="animal-btn" onclick="setupPickAnimal(this,'🐄')">🐄</button>
+      </div>
       <div class="points-row">
         <label>First to reach:</label>
         <select class="points-select" id="target-pts">
@@ -564,6 +574,7 @@ let localRound = 1;
 let localTargetPts = 20;
 let stealVictim = null;
 let stealAmt = 0;
+let isMyTurn = false;
 let fbSubmitted = false;
 let fbStar = 0, fbDiff = '', fbSlots = new Set();
 
@@ -670,18 +681,19 @@ function goStudent(){ showScreen('join'); resetJoinUI(); }
 // ROOM CREATION (teacher)
 // ════════════════════════════════
 async function createRoom(){
+  if(!selectedAnimal){ alert('Pick your animal first!'); return; }
   const code = String(Math.floor(1000+Math.random()*9000));
   roomId = code;
   sessionId = code + '_' + Date.now();
   isHost = true;
-  myAnimal = '👨‍🏫';
+  myAnimal = selectedAnimal;
   localTargetPts = parseInt(document.getElementById('target-pts').value);
 
   roomRef = db.ref('rooms/' + roomId);
   await roomRef.set({
     config:{ targetPts: localTargetPts, createdAt: Date.now(), sessionId },
     gameState:{ phase:'lobby', scores:{}, round:1, currentAnimal:null, currentCard:null },
-    players:{},
+    players:{ [encodeAnimal(myAnimal)]: { animal: myAnimal, joinedAt: Date.now() } },
     feedback:{}
   });
 
@@ -695,6 +707,12 @@ async function createRoom(){
 // JOIN ROOM (student)
 // ════════════════════════════════
 let selectedAnimal = null;
+function setupPickAnimal(btn, a){
+  selectedAnimal = a;
+  document.querySelectorAll('#setup-animal-pick .animal-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
 function resetJoinUI(){
   selectedAnimal = null;
   document.getElementById('room-code-input').value = '';
@@ -772,7 +790,7 @@ function showLobby(){
   } else {
     document.getElementById('room-code-display').style.display='none';
     document.getElementById('start-btn').style.display='none';
-    document.getElementById('lobby-title').textContent = 'JOINED! Waiting for teacher...';
+    document.getElementById('lobby-title').textContent = 'JOINED! Waiting to start...';
   }
   renderLobbyAnimals([]);
 
@@ -854,6 +872,7 @@ function syncFromState(state){
   localPhase = state.phase;
   localPlayers = state.animalList || [];
   localCurrentIdx = localPlayers.indexOf(state.currentAnimal);
+  isMyTurn = (state.currentAnimal === myAnimal);
   localRound = state.round || 1;
   localTargetPts = state.targetPts || 20;
 
@@ -886,8 +905,8 @@ function renderGameFromState(state){
         <div class="turn-label">It's your turn!</div>
         <div class="turn-animal">${currentAnimal}</div>
         <div class="roll-instruction">Roll 1–5 to move · Roll ⚅ 6 to STEAL!</div>
-        <div class="die-btn${amActive?'':' disabled-die'}" id="move-die" onclick="${amActive?'hostRollMove()':''}">🎲</div>
-        ${!amActive?`<div class="watching-label">👁 Watching...</div>`:''}
+        <div class="die-btn${(isMyTurn||isHost)?'':' disabled-die'}" id="move-die" onclick="${(isMyTurn||isHost)?'hostRollMove()':''}">🎲</div>
+        ${!isMyTurn && !isHost?`<div class="watching-label">👁 Watching ${localPlayers[localCurrentIdx]||''}...</div>`:'<div class="watching-label" style="opacity:0">_</div>'}
       </div>`;
   }
   else if(state.phase === 'question'){
@@ -902,7 +921,7 @@ function renderGameFromState(state){
         <div class="q-body">
           <div class="q-main">${c.q}</div>
           ${c.slot!==1?`<div class="q-speak-row"><button class="speak-btn" onclick="event.stopPropagation();replaySpeakCard()">🔊 Hear</button></div>`:''}
-          <div class="q-tap-hint">${amActive?'tap to reveal answer':'waiting for teacher...'}</div>
+          <div class="q-tap-hint">${(isMyTurn||isHost)?'tap to reveal answer':'waiting for '+localPlayers[localCurrentIdx]+'...'}</div>
         </div>
         <div class="q-ftr"><div class="q-player-chip"><span>${currentAnimal}</span></div><div style="font-size:.65rem;opacity:.4">Slot ${c.slot}</div></div>
       </div>`;
@@ -924,7 +943,7 @@ function renderGameFromState(state){
           <div style="display:flex;justify-content:center;margin-top:10px"><button class="speak-btn speak-btn-dark" onclick="speakAnswer(localCurrentCard)">🔊 Hear it</button></div>
         </div>
         <div style="background:#f9f9f9;padding:8px 14px;text-align:center;font-size:.72rem;color:rgba(26,26,26,.4);font-family:'Noto Sans JP','DM Sans',sans-serif">先生が判定します / Teacher judges</div>
-        ${amActive?`<div class="judge-row"><button class="jbtn correct" onclick="hostJudgeCorrect()">✅ 正解</button><button class="jbtn wrong" onclick="hostJudgeWrong()">❌ 不正解</button></div>`:'<div class="judge-row" style="justify-content:center;padding:12px;background:#f5f5f5;font-size:.8rem;color:#999">Waiting for teacher...</div>'}
+        <div class="judge-row"><button class="jbtn correct" id="judge-correct-btn" onclick="hostJudgeCorrect()">✅ 正解</button><button class="jbtn wrong" id="judge-wrong-btn" onclick="hostJudgeWrong()">❌ 不正解</button></div>
       </div>`;
     setTimeout(()=>speakAnswer(c), 300);
   }
@@ -934,7 +953,7 @@ function renderGameFromState(state){
         <div class="pts-result">✅ CORRECT!</div>
         <div class="turn-animal">${currentAnimal}</div>
         <div class="pts-roll-label">${currentAnimal} — ${amActive?'tap the die to earn points':'waiting...'}</div>
-        <div class="die-btn${amActive?'':' disabled-die'}" id="pts-die" onclick="${amActive?'hostRollPoints()':''}">🎲</div>
+        <div class="die-btn${(isMyTurn||isHost)?'':' disabled-die'}" id="pts-die" onclick="${(isMyTurn||isHost)?'hostRollPoints()':''}">🎲</div>
       </div>`;
   }
   else if(state.phase === 'wrong'){
@@ -946,7 +965,7 @@ function renderGameFromState(state){
         <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;color:rgba(240,235,224,.35);margin-bottom:4px">Model Answer</div>
         <div class="wrong-ans">${c?c.a:''}</div>
         <button class="speak-btn" style="margin-top:6px" onclick="speakAnswer(localCurrentCard)">🔊 Hear it</button>
-        ${amActive?`<button class="next-btn" style="margin-top:10px;background:#e74c3c;color:white" onclick="hostNextPlayer()">Next Player →</button>`:'<div style="margin-top:10px;font-size:.8rem;color:rgba(240,235,224,.3)">Waiting for teacher...</div>'}
+        <button class="next-btn" style="margin-top:10px;background:#e74c3c;color:white" onclick="hostNextPlayer()">Next Player →</button>
       </div>`;
     setTimeout(()=>{ if(c) speakAnswer(c); }, 400);
   }
@@ -958,7 +977,7 @@ function renderGameFromState(state){
         <div class="steal-headline">STEAL!</div>
         <div class="turn-animal">${currentAnimal}</div>
         <div class="steal-detail">${currentAnimal} answered correctly!<br>Tap die to steal from <strong>${victim||'?'}</strong></div>
-        <div class="die-btn${amActive?'':' disabled-die'}" id="steal-die" onclick="${amActive?'hostRollSteal()':''}">🎲</div>
+        <div class="die-btn${(isMyTurn||isHost)?'':' disabled-die'}" id="steal-die" onclick="${(isMyTurn||isHost)?'hostRollSteal()':''}">🎲</div>
       </div>`;
   }
   else if(state.phase === 'steal_result'){
@@ -970,7 +989,7 @@ function renderGameFromState(state){
         <div style="font-size:2.5rem">💸</div>
         <div class="steal-headline">${currentAnimal} STEALS ${amt}!</div>
         <div class="steal-detail">−${amt} from ${victim}<br>${victim} now has ${victimScore} pts</div>
-        ${amActive?`<button class="next-btn" style="margin-top:12px" onclick="hostNextPlayer()">Next Player →</button>`:'<div style="margin-top:10px;font-size:.8rem;color:rgba(240,235,224,.3)">Waiting...</div>'}
+        <button class="next-btn" style="margin-top:12px" onclick="hostNextPlayer()">Next Player →</button>
       </div>`;
   }
 }
@@ -989,7 +1008,8 @@ function drawCard(slot){
 }
 
 function hostRollMove(){
-  if(!isHost) return;
+  const state_check = roomRef ? true : false;
+  if(!state_check) return;
   const die = document.getElementById('move-die');
   if(!die||die.classList.contains('disabled-die')) return;
   die.classList.add('rolling');
@@ -1022,8 +1042,10 @@ function hostRevealAnswer(){
 }
 
 async function hostJudgeCorrect(){
-  if(!isHost) return;
   document.querySelectorAll('.jbtn').forEach(b=>b.disabled=true);
+  // Check not already judged
+  const curPhase = (await roomRef.child('gameState/phase').once('value')).val();
+  if(curPhase !== 'answer') return; // already judged by another device
   const state = (await roomRef.child('gameState').once('value')).val();
   const card = state.currentCard;
 
@@ -1040,13 +1062,14 @@ async function hostJudgeCorrect(){
 }
 
 async function hostJudgeWrong(){
-  if(!isHost) return;
   document.querySelectorAll('.jbtn').forEach(b=>b.disabled=true);
+  const curPhase = (await roomRef.child('gameState/phase').once('value')).val();
+  if(curPhase !== 'answer') return;
   await roomRef.child('gameState/phase').set('wrong');
 }
 
 function hostRollPoints(){
-  if(!isHost) return;
+  if(!isMyTurn && !isHost) return;
   const die = document.getElementById('pts-die');
   if(!die) return;
   die.classList.add('rolling');
@@ -1082,7 +1105,7 @@ function hostRollPoints(){
 }
 
 function hostRollSteal(){
-  if(!isHost) return;
+  if(!isMyTurn && !isHost) return;
   const die = document.getElementById('steal-die');
   if(!die) return;
   die.classList.add('rolling');
@@ -1116,7 +1139,6 @@ function hostRollSteal(){
 }
 
 async function hostNextPlayer(){
-  if(!isHost) return;
   const state = (await roomRef.child('gameState').once('value')).val();
   const animals = state.animalList || localPlayers;
   const curIdx = animals.indexOf(state.currentAnimal);
