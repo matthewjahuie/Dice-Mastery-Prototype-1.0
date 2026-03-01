@@ -763,9 +763,12 @@ async function createRoom(){
   await roomRef.set({
     config:{ targetPts: localTargetPts, createdAt: Date.now(), sessionId, classCode },
     gameState:{ phase:'lobby', scores:{}, round:1, currentAnimal:null, currentCard:null },
-    players:{ [encodeAnimal(myAnimal)]: { animal: myAnimal, joinedAt: Date.now() } },
+    players:{ [encodeAnimal(myAnimal)]: { animal: myAnimal, joinedAt: Date.now(), isCreator: true } },
     feedback:{}
   });
+  // Verify write succeeded
+  const verify = await roomRef.child('players/'+encodeAnimal(myAnimal)).once('value');
+  if(!verify.exists()){ alert('Room creation failed. Check connection and try again.'); return; }
 
   // Clean up room after 3 hours
   roomRef.child('config/expiresAt').set(Date.now() + 3*60*60*1000);
@@ -849,15 +852,60 @@ async function joinRoom(){
 
     await roomRef.child('players/'+encodeAnimal(myAnimal)).set({ animal: myAnimal, joinedAt: Date.now() });
     errEl.textContent = '';
+    saveSession();
     showLobby();
   } catch(e){ errEl.textContent = 'Connection error. Try again.'; console.error(e); }
 }
 function encodeAnimal(a){ return a.codePointAt(0).toString(16); }
-function decodeAnimal(hex){ return String.fromCodePoint(parseInt(hex,16)); }
+function decodeAnimal(hex){
+  try {
+    const cp = parseInt(hex, 16);
+    if(isNaN(cp)) return '❓';
+    return String.fromCodePoint(cp);
+  } catch(e){ return '❓'; }
+}
 
 // ════════════════════════════════
 // LOBBY
 // ════════════════════════════════
+function saveSession(){
+  if(!roomId || !myAnimal) return;
+  try {
+    sessionStorage.setItem('dm_room', roomId);
+    sessionStorage.setItem('dm_animal', myAnimal);
+    sessionStorage.setItem('dm_host', isHost ? '1' : '0');
+  } catch(e){}
+}
+
+function clearSession(){
+  try { sessionStorage.removeItem('dm_room'); sessionStorage.removeItem('dm_animal'); sessionStorage.removeItem('dm_host'); } catch(e){}
+}
+
+async function tryRestoreSession(){
+  try {
+    const savedRoom = sessionStorage.getItem('dm_room');
+    const savedAnimal = sessionStorage.getItem('dm_animal');
+    const savedHost = sessionStorage.getItem('dm_host');
+    if(!savedRoom || !savedAnimal) return false;
+    // Check room still exists and game is active
+    const snap = await db.ref('rooms/'+savedRoom+'/gameState/phase').once('value');
+    const phase = snap.val();
+    if(!phase || phase === 'win') return false;
+    // Restore
+    roomId = savedRoom;
+    myAnimal = savedAnimal;
+    isHost = savedHost === '1';
+    roomRef = db.ref('rooms/' + roomId);
+    selectedAnimal = myAnimal;
+    // Re-register as player if needed
+    await roomRef.child('players/'+encodeAnimal(myAnimal)).once('value').then(s=>{
+      if(!s.exists()) roomRef.child('players/'+encodeAnimal(myAnimal)).set({ animal: myAnimal, joinedAt: Date.now(), rejoined: true });
+    });
+    startListeningGame();
+    return true;
+  } catch(e){ return false; }
+}
+
 function showLobby(){
   showScreen('lobby');
   if(isHost){
@@ -938,6 +986,14 @@ async function hostStartGame(){
 // ════════════════════════════════
 function startListeningGame(){
   showScreen('game');
+  // Monitor actual Firebase connection
+  db.ref('.info/connected').on('value', snap=>{
+    const connected = snap.val();
+    const dot = document.getElementById('game-conn-dot');
+    const lbl = document.getElementById('game-conn-label');
+    if(dot) dot.className = 'conn-dot' + (connected?' ok':'');
+    if(lbl) lbl.textContent = connected ? 'Live' : 'Reconnecting...';
+  });
   if(gameListener) roomRef.child('gameState').off('value', gameListener);
   gameListener = roomRef.child('gameState').on('value', snap=>{
     const state = snap.val();
@@ -963,6 +1019,8 @@ function syncFromState(state){
   // Sync current card
   localCurrentCard = state.currentCard || null;
 
+  // Transitional phases — show answer card while transaction completes
+  if(state.phase === 'judging_correct' || state.phase === 'judging_wrong'){ renderGameFromState({...state, phase:'answer'}); return; }
   if(state.phase === 'win'){ showWinScreen(state); return; }
   if(state.phase === 'feedback'){ proceedToFeedback(); return; }
 
@@ -1005,7 +1063,7 @@ function renderGameFromState(state){
         </div>
         <div class="q-ftr"><div class="q-player-chip"><span>${currentAnimal}</span></div><div style="font-size:.65rem;opacity:.4">Slot ${c.slot}</div></div>
       </div>`;
-    if(c.slot!==1) setTimeout(()=>speakCard(c), 300);
+    if(c.slot!==1) setTimeout(()=>{ try{ speakCard(c); }catch(e){} }, 400);
   }
   else if(state.phase === 'answer'){
     const c = state.currentCard;
@@ -1029,7 +1087,7 @@ function renderGameFromState(state){
           <button class="jbtn wrong" onclick="hostJudgeWrong()">❌ 不正解</button>
         </div>
       </div>`;
-    setTimeout(()=>speakAnswer(c), 300);
+    setTimeout(()=>{ try{ speakAnswer(c); }catch(e){} }, 400);
   }
   else if(state.phase === 'points'){
     const canRoll = isMyTurn;
@@ -1053,7 +1111,7 @@ function renderGameFromState(state){
         <button class="speak-btn" style="margin-top:6px" onclick="speakAnswer(localCurrentCard)">🔊 Hear it</button>
         <button class="next-btn" style="margin-top:10px;background:#e74c3c;color:white" onclick="hostNextPlayer()">Next Player →</button>
       </div>`;
-    setTimeout(()=>{ if(c) speakAnswer(c); }, 400);
+    setTimeout(()=>{ try{ if(c) speakAnswer(c); }catch(e){} }, 400);
   }
   else if(state.phase === 'steal'){
     const victim = state.stealVictim;
@@ -1130,9 +1188,13 @@ function hostRevealAnswer(){
 
 async function hostJudgeCorrect(){
   document.querySelectorAll('.jbtn').forEach(b=>b.disabled=true);
-  // Check not already judged
-  const curPhase = (await roomRef.child('gameState/phase').once('value')).val();
-  if(curPhase !== 'answer') return; // already judged by another device
+  // Transaction ensures only ONE device wins the race
+  let won = false;
+  await roomRef.child('gameState/phase').transaction(current => {
+    if(current === 'answer'){ won = true; return 'judging_correct'; }
+    return undefined; // abort if already changed
+  });
+  if(!won) return;
   const state = (await roomRef.child('gameState').once('value')).val();
   const card = state.currentCard;
 
@@ -1150,8 +1212,12 @@ async function hostJudgeCorrect(){
 
 async function hostJudgeWrong(){
   document.querySelectorAll('.jbtn').forEach(b=>b.disabled=true);
-  const curPhase = (await roomRef.child('gameState/phase').once('value')).val();
-  if(curPhase !== 'answer') return;
+  let won = false;
+  await roomRef.child('gameState/phase').transaction(current => {
+    if(current === 'answer'){ won = true; return 'judging_wrong'; }
+    return undefined;
+  });
+  if(!won) return;
   await roomRef.child('gameState/phase').set('wrong');
 }
 
@@ -1427,6 +1493,7 @@ function resetDashboard(){
 // LEAVE / CLEANUP
 // ════════════════════════════════
 function leaveRoom(){
+  clearSession();
   if(gameListener && roomRef) roomRef.child('gameState').off('value', gameListener);
   if(lobbyListener && roomRef) roomRef.child('players').off('value', lobbyListener);
   if(roomRef) roomRef.child('gameState/phase').off();
@@ -1466,7 +1533,15 @@ function enterSpectatorHub(){
 async function loadHubRooms(){
   const grid = document.getElementById('hub-grid');
   try {
-    const snap = await db.ref('rooms').orderByChild('config/classCode').equalTo(teacherClassCode).once('value');
+    // Try indexed query first, fall back to full scan if index not set
+    let snap;
+    try {
+      snap = await db.ref('rooms').orderByChild('config/classCode').equalTo(teacherClassCode).once('value');
+    } catch(e) {
+      // Index not set yet - fall back to full scan with warning
+      snap = await db.ref('rooms').once('value');
+      document.getElementById('hub-refresh').textContent = '⚠ Add Firebase index for faster loading (see setup guide)';
+    }
     const rooms = snap.val() || {};
     const roomList = Object.entries(rooms).map(([code, data])=>({code, data}))
       .sort((a,b)=>(b.data.config?.createdAt||0)-(a.data.config?.createdAt||0))
@@ -1622,7 +1697,10 @@ function renderSpectateView(state){
 // INIT
 // ════════════════════════════════
 initVoice();
-renderInstrSlide();
+// Try to restore session if page was refreshed mid-game
+tryRestoreSession().then(restored => {
+  if(!restored) renderInstrSlide();
+});
 </script>
 </body>
 </html>
