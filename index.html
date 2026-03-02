@@ -685,15 +685,19 @@ function initVoice(){
 function speak(text){
   if(!('speechSynthesis' in window)||!text) return;
   window.speechSynthesis.cancel();
-  const clean = text.replace(/[\u{1F000}-\u{1FFFF}]/gu,'').replace(/[\u3000-\u9FFF\u3040-\u30FF]/g,'').replace(/[·•★✦"'""'']/g,'').replace(/\s+/g,' ').trim();
+  const clean = text.replace(/[\u{1F000}-\u{1FFFF}]/gu,'').replace(/[\u3000-\u9FFF\u3040-\u30FF]/g,'').replace(/[·•★✦\"'""\'\u2018\u2019]/g,'').replace(/\s+/g,' ').trim();
   if(!clean) return;
   const utt = new SpeechSynthesisUtterance(clean);
   utt.lang='en-US'; utt.rate=0.88; utt.pitch=1.0; utt.volume=1.0;
   if(preferredVoice) utt.voice=preferredVoice;
   utt.onend=()=>document.querySelectorAll('.speak-btn').forEach(b=>b.classList.remove('speaking'));
-  utt.onerror=()=>document.querySelectorAll('.speak-btn').forEach(b=>b.classList.remove('speaking'));
+  utt.onerror=(e)=>{ console.warn('TTS error',e.error); document.querySelectorAll('.speak-btn').forEach(b=>b.classList.remove('speaking')); };
   document.querySelectorAll('.speak-btn').forEach(b=>b.classList.add('speaking'));
+  // iOS fix: resume if paused/suspended before speaking
+  try { if(window.speechSynthesis.paused) window.speechSynthesis.resume(); } catch(e){}
   window.speechSynthesis.speak(utt);
+  // iOS Safari stall fix — pause/resume after short delay
+  setTimeout(()=>{ try{ if(window.speechSynthesis.speaking){ window.speechSynthesis.pause(); window.speechSynthesis.resume(); } }catch(e){} }, 200);
 }
 function speakJP(text){
   if(!('speechSynthesis' in window)) return;
@@ -1100,7 +1104,7 @@ function renderGameFromState(state){
         </div>
         <div class="q-ftr"><div class="q-player-chip"><span>${currentAnimal}</span></div><div style="font-size:.65rem;opacity:.4">Slot ${c.slot}</div></div>
       </div>`;
-    if(c.slot!==1) setTimeout(()=>{ try{ speakCard(c); }catch(e){} }, 400);
+    if(c.slot!==1 && audioUnlocked) setTimeout(()=>{ try{ speakCard(c); }catch(e){} }, 400);
   }
   else if(state.phase === 'answer'){
     const c = state.currentCard;
@@ -1124,7 +1128,7 @@ function renderGameFromState(state){
           <button class="jbtn wrong" onclick="hostJudgeWrong()">❌ 不正解</button>
         </div>
       </div>`;
-    setTimeout(()=>{ try{ speakAnswer(c); }catch(e){} }, 400);
+    if(audioUnlocked) setTimeout(()=>{ try{ speakAnswer(c); }catch(e){} }, 400);
   }
   else if(state.phase === 'points'){
     const canRoll = isMyTurn;
@@ -1148,7 +1152,7 @@ function renderGameFromState(state){
         <button class="speak-btn" style="margin-top:6px" onclick="speakAnswer(localCurrentCard)">🔊 Hear it</button>
         <button class="next-btn" style="margin-top:10px;background:#e74c3c;color:white" onclick="hostNextPlayer()">Next Player →</button>
       </div>`;
-    setTimeout(()=>{ try{ if(c) speakAnswer(c); }catch(e){} }, 400);
+    if(audioUnlocked) setTimeout(()=>{ try{ if(c) speakAnswer(c); }catch(e){} }, 400);
   }
   else if(state.phase === 'steal'){
     const victim = state.stealVictim;
@@ -1747,6 +1751,28 @@ function renderSpectateView(state){
 // INIT
 // ════════════════════════════════
 initVoice();
+
+// iOS Safari audio unlock — fire a silent utterance on first touch
+// Without this, speechSynthesis is blocked until user directly triggers it
+let audioUnlocked = false;
+function unlockAudio(){
+  if(audioUnlocked || !('speechSynthesis' in window)) return;
+  audioUnlocked = true;
+  const utt = new SpeechSynthesisUtterance('');
+  utt.volume = 0;
+  window.speechSynthesis.speak(utt);
+  // Also keep speechSynthesis alive — iOS kills it after ~30s of inactivity
+  setInterval(()=>{
+    if(!window.speechSynthesis.speaking && !window.speechSynthesis.pending){
+      const keepAlive = new SpeechSynthesisUtterance('');
+      keepAlive.volume = 0;
+      window.speechSynthesis.speak(keepAlive);
+      setTimeout(()=>window.speechSynthesis.cancel(), 50);
+    }
+  }, 25000);
+}
+document.addEventListener('touchstart', unlockAudio, {once:true, passive:true});
+document.addEventListener('click', unlockAudio, {once:true});
 // Try to restore session if page was refreshed mid-game
 tryRestoreSession().then(restored => {
   if(!restored) renderInstrSlide();
