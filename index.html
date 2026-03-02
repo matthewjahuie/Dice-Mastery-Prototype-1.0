@@ -111,7 +111,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .sc .sp{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--gold);line-height:1}
 
 /* ── SLIDE AREA ── */
-#game{background:var(--bg);position:relative}
+#game{background:var(--bg)}
 #spectate{position:relative}
 
 /* ── COLOR PSYCHOLOGY FLASH OVERLAYS ── */
@@ -709,6 +709,7 @@ function speakJP(text){
   window.speechSynthesis.speak(utt);
 }
 function speakCard(card){
+  unlockAudio();
   if(!card) return;
   const isEmoji = /^[\p{Emoji}\s]+$/u.test(card.q.trim());
   const isJP = /[\u3040-\u9FFF]/.test(card.q);
@@ -717,6 +718,7 @@ function speakCard(card){
   speak(card.q);
 }
 function speakAnswer(card){
+  unlockAudio();
   if(!card) return;
   const isJP = /[\u3040-\u9FFF]/.test(card.q);
   const isEmoji = /^[\p{Emoji}\s]+$/u.test(card.q.trim());
@@ -1752,25 +1754,33 @@ function renderSpectateView(state){
 // ════════════════════════════════
 initVoice();
 
-// iOS Safari audio unlock — fire a silent utterance on first touch
-// Without this, speechSynthesis is blocked until user directly triggers it
+// iOS Safari audio unlock — fire a silent utterance on first touch/click
+// Must happen in a direct user gesture handler — iOS blocks all speech otherwise
 let audioUnlocked = false;
 function unlockAudio(){
   if(audioUnlocked || !('speechSynthesis' in window)) return;
   audioUnlocked = true;
-  const utt = new SpeechSynthesisUtterance('');
-  utt.volume = 0;
-  window.speechSynthesis.speak(utt);
-  // Also keep speechSynthesis alive — iOS kills it after ~30s of inactivity
+  try {
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(' ');
+    utt.volume = 0; utt.rate = 2;
+    utt.onend = ()=>{}; utt.onerror = ()=>{};
+    window.speechSynthesis.speak(utt);
+    setTimeout(()=>window.speechSynthesis.cancel(), 100);
+  } catch(e){}
+  // Keep speechSynthesis alive — iOS kills it after ~30s of silence
   setInterval(()=>{
-    if(!window.speechSynthesis.speaking && !window.speechSynthesis.pending){
-      const keepAlive = new SpeechSynthesisUtterance('');
-      keepAlive.volume = 0;
-      window.speechSynthesis.speak(keepAlive);
-      setTimeout(()=>window.speechSynthesis.cancel(), 50);
+    if(!window.speechSynthesis.speaking){
+      try {
+        const k = new SpeechSynthesisUtterance(' ');
+        k.volume=0; k.rate=2;
+        window.speechSynthesis.speak(k);
+        setTimeout(()=>window.speechSynthesis.cancel(), 80);
+      } catch(e){}
     }
-  }, 25000);
+  }, 20000);
 }
+// Attach to both touchstart (iOS) and click (desktop/Android)
 document.addEventListener('touchstart', unlockAudio, {once:true, passive:true});
 document.addEventListener('click', unlockAudio, {once:true});
 // Try to restore session if page was refreshed mid-game
