@@ -18,7 +18,7 @@
 }
 html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--bg);color:#f0ebe0;touch-action:manipulation}
 .screen{display:none;position:fixed;inset:0;overflow-y:auto}
-.screen.active{display:flex;flex-direction:column}
+.screen.active{display:flex;flex-direction:column;height:100vh;height:100dvh}
 
 /* ── INSTRUCTIONS ── */
 #instructions{align-items:center;justify-content:center;background:var(--bg)}
@@ -111,7 +111,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .sc .sp{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--gold);line-height:1}
 
 /* ── SLIDE AREA ── */
-#game{background:var(--bg)}
+#game{background:var(--bg);overflow:hidden;display:flex;flex-direction:column;height:100vh;height:100dvh}
 #spectate{position:relative}
 
 /* ── COLOR PSYCHOLOGY FLASH OVERLAYS ── */
