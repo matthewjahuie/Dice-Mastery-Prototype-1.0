@@ -103,14 +103,31 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 /* ── SCORE BAR ── */
 .score-bar{display:flex;gap:6px;padding:8px 10px;background:rgba(0,0,0,.4);border-bottom:1px solid rgba(255,255,255,.07);overflow-x:auto;flex-shrink:0;z-index:10}
 .sc{display:flex;flex-direction:column;align-items:center;padding:5px 10px;border-radius:8px;border:2px solid transparent;flex-shrink:0;min-width:60px;transition:border-color .2s,background .2s}
-.sc.active{border-color:var(--gold);background:rgba(245,200,66,.1)}
+.sc.active{border-color:var(--gold);background:rgba(245,200,66,.18);box-shadow:0 0 12px rgba(245,200,66,.35);animation:activePulse 2s ease-in-out infinite}
+@keyframes activePulse{0%,100%{box-shadow:0 0 8px rgba(245,200,66,.3)}50%{box-shadow:0 0 20px rgba(245,200,66,.65)}}
 .sc.me{border-color:rgba(255,255,255,.3)}
 .sc .sa{font-size:1.3rem;line-height:1}
 .sc .sn{font-size:.58rem;font-weight:700;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(240,235,224,.7)}
 .sc .sp{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--gold);line-height:1}
 
 /* ── SLIDE AREA ── */
-#game{background:var(--bg)}
+#game{background:var(--bg);position:relative}
+#spectate{position:relative}
+
+/* ── COLOR PSYCHOLOGY FLASH OVERLAYS ── */
+/* Steal — full-screen purple surge */
+#game::before,#spectate::before{content:'';position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity .15s;z-index:99}
+#game.steal-flash::before,#spectate.steal-flash::before{background:radial-gradient(ellipse at 50% 40%,rgba(139,92,246,.55),rgba(44,22,84,.85));opacity:1;animation:stealPulse .7s ease-out forwards}
+@keyframes stealPulse{0%{opacity:0;transform:scale(.92)}20%{opacity:1;transform:scale(1.02)}100%{opacity:0;transform:scale(1)}}
+/* Correct answer — green reward wash */
+#game.correct-flash::before,#spectate.correct-flash::before{background:radial-gradient(ellipse at 50% 50%,rgba(39,174,96,.5),rgba(20,83,45,.7));opacity:1;animation:correctFlash .6s ease-out forwards}
+@keyframes correctFlash{0%{opacity:0}15%{opacity:1}100%{opacity:0}}
+/* Win screen — pulsing gold aura */
+.win-inner{background:radial-gradient(ellipse at 50% 20%,rgba(245,200,66,.25),transparent 65%);animation:winAura 2.5s ease-in-out infinite}
+@keyframes winAura{0%,100%{background:radial-gradient(ellipse at 50% 20%,rgba(245,200,66,.18),transparent 65%)}50%{background:radial-gradient(ellipse at 50% 20%,rgba(245,200,66,.38),transparent 65%)}}
+/* Steal result card — pulsing purple border */
+.steal-result-card{animation:stealCardPulse 1.2s ease-in-out infinite}
+@keyframes stealCardPulse{0%,100%{box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 0 0 rgba(139,92,246,.4)}60%{box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 40px 8px rgba(139,92,246,.6)}}
 .slide-area{flex:1;display:flex;align-items:center;justify-content:center;padding:12px;overflow:hidden}
 
 /* ── ROLL CARD ── */
@@ -538,7 +555,7 @@ const CARDS = {
     {q:'🍳',i:'What is this?',a:'Fried egg'},
     {q:'🌧️',i:'What weather?',a:'Rain / Rainy'},
     {q:'🐄',i:'What animal?',a:'Cow / Bull'},
-    {q:'🏋️',i:'What activity?',a:'Weightlifting'},
+    {q:'🎨',i:'What activity?',a:'Art / Drawing'},
     {q:'🚌',i:'What vehicle?',a:'Bus'},
     {q:'🌸',i:'What is this?',a:'Cherry blossom'},
     {q:'➕🔢',i:'What school subject?',a:'Math / Mathematics'},
@@ -568,13 +585,13 @@ const CARDS = {
     {q:'おじいさん',i:'What does this mean?',a:'Grandfather'},
   ],
   3:[
-    {q:'朝食',i:'Spell it in English.',a:'B·R·E·A·K·F·A·S·T'},
-    {q:'図書館',i:'Spell it in English.',a:'L·I·B·R·A·R·Y'},
+    {q:'野球',i:'Spell it in English.',a:'B·A·S·E·B·A·L·L'},
+    {q:'日曜日',i:'Spell it in English.',a:'S·U·N·D·A·Y'},
     {q:'病院',i:'Spell it in English.',a:'H·O·S·P·I·T·A·L'},
     {q:'駅',i:'Spell it in English.',a:'S·T·A·T·I·O·N'},
     {q:'学校',i:'Spell it in English.',a:'S·C·H·O·O·L'},
     {q:'友達',i:'Spell it in English.',a:'F·R·I·E·N·D'},
-    {q:'レストラン',i:'Spell it in English.',a:'R·E·S·T·A·U·R·A·N·T'},
+    {q:'猿',i:'Spell it in English.',a:'M·O·N·K·E·Y'},
     {q:'青',i:'Spell it in English.',a:'B·L·U·E'},
     {q:'帽子',i:'Spell it in English.',a:'C·A·P'},
     {q:'猫',i:'Spell it in English.',a:'C·A·T'},
@@ -607,14 +624,14 @@ const CARDS = {
     {q:"Today\'s weather",i:'Describe in one full sentence.',a:'The weather is [adjective] today.'},
     {q:'"I enjoy ___ing..."',i:'Complete and say aloud.',a:'I enjoy [verb]ing...'},
     {q:'Introduce yourself',i:'Two sentences about you.',a:'My name is... I am... / I like...'},
-    {q:'Your weekend plans',i:'Use "will".',a:'I will [verb]... this weekend.'},
-    {q:'Compare two things',i:'Use "better than because".',a:'[X] is better than [Y] because...'},
-    {q:'"I want to go to _____."',i:'Complete aloud.',a:'I want to go to [place].'},
+    {q:'"I want to go to ___."',i:'Complete aloud.',a:'I want to go to [place].'},
+    {q:'"I want a ___."',i:'Complete aloud.',a:'I want a [noun].'},
+    {q:'"I live in ___."',i:'Complete aloud.',a:'I live in [place].'},
     {q:'"I like _____."',i:'Complete aloud.',a:'I like [noun / verb+ing].'},
     {q:'"My birthday is _____."',i:'Complete aloud.',a:'My birthday is [month] [day].'},
     {q:'"I\'d like _____ and _____."',i:'Complete aloud.',a:'I\'d like [item] and [item].'},
     {q:'"I want to go ___ing."',i:'Complete aloud.',a:'I want to go [verb]ing.'},
-    {q:'"I want a _____."',i:'Complete aloud.',a:'I want a [noun].'},
+    {q:'"My school is ___."',i:'Complete aloud.',a:'My school is [adjective / name].'},
     {q:'"I can _____."',i:'Complete aloud.',a:'I can [base verb].'},
     {q:'"He / She is _____."',i:'Complete aloud.',a:'He / She is [adjective / noun].'},
   ],
@@ -1018,6 +1035,26 @@ function syncFromState(state){
 
   // Sync current card
   localCurrentCard = state.currentCard || null;
+
+  // ── COLOR PSYCHOLOGY FLASHES ──
+  const gameEl = document.getElementById('game');
+  if(gameEl){
+    // Steal flash — purple surge when steal phase hits
+    if(state.phase === 'steal' || state.phase === 'steal_result'){
+      gameEl.classList.remove('correct-flash');
+      gameEl.classList.add('steal-flash');
+      setTimeout(()=>gameEl.classList.remove('steal-flash'), 800);
+    }
+    // Correct flash — green wash on correct judgement
+    else if(state.phase === 'judging_correct'){
+      gameEl.classList.remove('steal-flash');
+      gameEl.classList.add('correct-flash');
+      setTimeout(()=>gameEl.classList.remove('correct-flash'), 700);
+    }
+    else {
+      gameEl.classList.remove('steal-flash','correct-flash');
+    }
+  }
 
   // Transitional phases — show answer card while transaction completes
   if(state.phase === 'judging_correct' || state.phase === 'judging_wrong'){ renderGameFromState({...state, phase:'answer'}); return; }
@@ -1614,6 +1651,19 @@ function leaveSpectate(){
 }
 
 function renderSpectateView(state){
+  // Color psychology flashes for spectator screen too
+  const specEl = document.getElementById('spectate');
+  if(specEl){
+    if(state.phase === 'steal' || state.phase === 'steal_result'){
+      specEl.classList.add('steal-flash');
+      setTimeout(()=>specEl.classList.remove('steal-flash'), 800);
+    } else if(state.phase === 'judging_correct'){
+      specEl.classList.add('correct-flash');
+      setTimeout(()=>specEl.classList.remove('correct-flash'), 700);
+    } else {
+      specEl.classList.remove('steal-flash','correct-flash');
+    }
+  }
   // Score bar
   const animals = state.animalList || [];
   const scores = {};
