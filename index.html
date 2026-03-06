@@ -4,54 +4,74 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>🎲 Dice Mastery — Offline</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700&family=Noto+Sans+JP:wght@700&display=swap" rel="stylesheet">
+<style>
+/* System fonts — no internet required */
+/* Bebas Neue fallback: Impact is on every device */
+/* DM Sans fallback: -apple-system (SF Pro on iOS) */
+/* Noto Sans JP fallback: Hiragino Sans (built into iOS/macOS) */
+</style>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{--bg:#0f1f17;--surface:#1a3328;--gold:#f5c842;--ink:#1a1a1a;--s1:#2980b9;--s1bg:#dbeeff;--s2:#27ae60;--s2bg:#d5f5e3;--s4:#e67e22;--s4bg:#fdebd0;--steal:#8b5cf6}
-html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--bg);color:#f0ebe0;touch-action:manipulation}
+html,body{height:100%;overflow:hidden;font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;background:var(--bg);color:#f0ebe0;touch-action:manipulation}
+
+/* ── SCREENS ── */
 .screen{display:none;position:fixed;inset:0;overflow-y:auto}
 .screen.active{display:flex;flex-direction:column;height:100vh;height:100dvh}
-.btn{width:100%;padding:14px 20px;border-radius:14px;border:none;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:transform .1s}
+
+/* ── BUTTONS ── */
+.btn{width:100%;padding:14px 20px;border-radius:14px;border:none;font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:transform .1s}
 .btn:active{transform:scale(.97)}
 .btn-gold{background:var(--gold);color:var(--ink)}
 .btn-ghost{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:rgba(240,235,224,.6)}
+
+/* ── HOME ── */
 #home{align-items:center;justify-content:center;gap:20px;padding:32px;background:radial-gradient(ellipse at 50% 0%,#1a3328,var(--bg))}
-.home-logo{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,9vw,5rem);letter-spacing:.12em;color:var(--gold);text-shadow:0 0 40px rgba(245,200,66,.35);line-height:1;text-align:center}
+.home-logo{font-family:'Impact','Arial Narrow',sans-serif;font-size:clamp(2.8rem,9vw,5rem);letter-spacing:.12em;color:var(--gold);text-shadow:0 0 40px rgba(245,200,66,.35);line-height:1;text-align:center}
 .home-sub{font-size:.75rem;text-transform:uppercase;letter-spacing:.25em;color:rgba(240,235,224,.3)}
 .offline-tag{background:rgba(245,200,66,.12);border:1px solid rgba(245,200,66,.25);border-radius:8px;padding:6px 16px;font-size:.72rem;font-weight:700;letter-spacing:.1em;color:rgba(245,200,66,.7);text-transform:uppercase}
 .slot-pills{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 .slot-pill{padding:5px 12px;border-radius:20px;font-size:.72rem;font-weight:700}
 .home-btns{display:flex;flex-direction:column;gap:12px;width:100%;max-width:340px}
+
+/* ── SETUP ── */
 #setup{align-items:center;background:radial-gradient(ellipse at 50% 0%,#1a3328,var(--bg))}
 .setup-wrap{width:100%;max-width:500px;display:flex;flex-direction:column;gap:20px;padding:24px;margin:auto}
-.setup-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.1em;color:var(--gold);text-align:center}
+.setup-title{font-family:'Impact','Arial Narrow',sans-serif;font-size:2rem;letter-spacing:.1em;color:var(--gold);text-align:center}
 .lbl{font-size:.68rem;text-transform:uppercase;letter-spacing:.18em;color:rgba(240,235,224,.4);margin-bottom:8px}
 .row-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-.sel-btn{padding:10px 18px;border-radius:10px;border:2px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:rgba(240,235,224,.5);font-family:'Bebas Neue',sans-serif;font-size:1.2rem;cursor:pointer;transition:all .15s;min-width:52px;text-align:center}
+.sel-btn{padding:10px 18px;border-radius:10px;border:2px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:rgba(240,235,224,.5);font-family:'Impact','Arial Narrow',sans-serif;font-size:1.2rem;cursor:pointer;transition:all .15s;min-width:52px;text-align:center}
 .sel-btn.on{border-color:var(--gold);background:rgba(245,200,66,.15);color:var(--gold)}
 .animals-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
 .a-slot{display:flex;flex-direction:column;align-items:center;gap:3px}
-.a-num{font-size:.58rem;color:rgba(240,235,224,.3);text-transform:uppercase;letter-spacing:.1em}
+.a-num{font-size:.55rem;color:rgba(240,235,224,.3);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
 .a-pick{width:100%;aspect-ratio:1;border-radius:12px;border:2px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);font-size:1.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .a-pick.filled{border-color:var(--gold);background:rgba(245,200,66,.12)}
+
+/* ── MODAL ── */
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;align-items:center;justify-content:center;padding:20px}
 .modal.open{display:flex}
 .modal-box{background:#1a3328;border:2px solid rgba(245,200,66,.2);border-radius:20px;padding:24px;width:100%;max-width:400px;max-height:80vh;overflow-y:auto}
-.modal-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.1em;color:var(--gold);margin-bottom:16px;text-align:center}
+.modal-title{font-family:'Impact','Arial Narrow',sans-serif;font-size:1.4rem;letter-spacing:.1em;color:var(--gold);margin-bottom:16px;text-align:center}
 .picker-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
 .p-btn{font-size:1.8rem;width:100%;aspect-ratio:1;border-radius:10px;border:2px solid transparent;background:rgba(255,255,255,.05);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s}
 .p-btn:active{transform:scale(.88)}
 .p-btn.taken{opacity:.2;cursor:not-allowed;pointer-events:none}
+
+/* ── SCORE BAR ── */
 .score-bar{display:flex;gap:5px;padding:8px 10px;background:rgba(0,0,0,.4);border-bottom:1px solid rgba(255,255,255,.07);overflow-x:auto;flex-shrink:0}
 .sc{display:flex;flex-direction:column;align-items:center;padding:5px 9px;border-radius:8px;border:2px solid transparent;flex-shrink:0;min-width:56px;transition:all .2s}
 .sc.active{border-color:var(--gold);background:rgba(245,200,66,.15);animation:apulse 2s ease-in-out infinite}
 @keyframes apulse{0%,100%{box-shadow:0 0 8px rgba(245,200,66,.3)}50%{box-shadow:0 0 20px rgba(245,200,66,.65)}}
 .sc .sa{font-size:1.3rem;line-height:1}
-.sc .sp{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--gold);line-height:1}
-#game{background:var(--bg);overflow:hidden;height:100vh;height:100dvh;display:flex;flex-direction:column}
-#game::before{content:'';position:fixed;inset:0;pointer-events:none;opacity:0;z-index:99}
+.sc .sg{font-size:.55rem;color:rgba(240,235,224,.35);font-weight:700}
+.sc .sp{font-family:'Impact','Arial Narrow',sans-serif;font-size:1.2rem;color:var(--gold);line-height:1}
+
+/* ── GAME SCREEN — NOTE: no display:flex here, that's handled by .screen.active ── */
+#game{background:var(--bg);overflow:hidden}
+#game.active{display:flex;flex-direction:column;height:100vh;height:100dvh}
+#game::before{content:'';position:fixed;inset:0;pointer-events:none;opacity:0;z-index:99;transition:opacity .1s}
 #game.sf::before{background:radial-gradient(ellipse at 50% 40%,rgba(139,92,246,.55),rgba(44,22,84,.85));opacity:1;animation:sfl .7s ease-out forwards}
 #game.cf::before{background:radial-gradient(ellipse at 50% 50%,rgba(39,174,96,.5),rgba(20,83,45,.7));opacity:1;animation:cfl .6s ease-out forwards}
 @keyframes sfl{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
@@ -60,6 +80,8 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .bottom-nav{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(0,0,0,.35);border-top:1px solid rgba(255,255,255,.06);flex-shrink:0}
 .bnav-info{font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;color:rgba(240,235,224,.25)}
 .bnav-btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 14px;color:rgba(240,235,224,.5);font-size:.7rem;cursor:pointer}
+
+/* ── ROLL CARD ── */
 .roll-card{background:var(--surface);border:3px solid rgba(245,200,66,.25);border-radius:20px;padding:clamp(20px,4vw,40px);display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;max-width:520px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
 .turn-lbl{font-size:.7rem;text-transform:uppercase;letter-spacing:.2em;color:rgba(240,235,224,.35)}
 .turn-emoji{font-size:clamp(3.5rem,12vw,6rem);line-height:1}
@@ -68,11 +90,13 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .die-btn:active{transform:scale(.88)}
 .die-btn.rolling{animation:dspin .45s ease-out}
 @keyframes dspin{0%{transform:rotate(0)scale(1)}40%{transform:rotate(200deg)scale(1.2)}70%{transform:rotate(380deg)scale(.9)}100%{transform:rotate(360deg)scale(1)}}
+
+/* ── QUESTION CARD ── */
 .q-card{width:100%;max-width:620px;border-radius:20px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.5);cursor:pointer}
 .q-hdr{padding:14px 22px;display:flex;align-items:center;justify-content:space-between}
 .q-slot-lbl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.18em;opacity:.85}
 .q-body{flex:1;padding:clamp(24px,5vw,48px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;min-height:220px}
-.q-main{font-family:'Noto Sans JP','DM Sans',sans-serif;font-size:clamp(2.2rem,8vw,4.5rem);font-weight:700;line-height:1.2;color:var(--ink);word-break:break-word}
+.q-main{font-family:'Hiragino Sans','Yu Gothic','Meiryo',-apple-system,sans-serif;font-size:clamp(2.2rem,8vw,4.5rem);font-weight:700;line-height:1.2;color:var(--ink);word-break:break-word}
 .q-instr{font-size:clamp(.85rem,2.5vw,1.1rem);color:rgba(26,26,26,.5);font-weight:600}
 .q-tap{font-size:.62rem;text-transform:uppercase;letter-spacing:.18em;opacity:.3;margin-top:4px}
 .q-ftr{padding:12px 22px;display:flex;align-items:center;justify-content:space-between}
@@ -80,51 +104,65 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .slot-2 .q-hdr,.slot-2 .q-ftr{background:var(--s2bg)}.slot-2 .q-body{background:white}.slot-2 .q-hdr{border-bottom:2px solid var(--s2)}.slot-2 .q-slot-lbl{color:var(--s2)}
 .slot-4 .q-hdr,.slot-4 .q-ftr{background:var(--s4bg)}.slot-4 .q-body{background:white}.slot-4 .q-hdr{border-bottom:2px solid var(--s4)}.slot-4 .q-slot-lbl{color:var(--s4)}
 .steal-card .q-hdr,.steal-card .q-ftr{background:#2c1654}.steal-card .q-body{background:#1a0a33}.steal-card .q-slot-lbl{color:#e9d5ff}.steal-card .q-main{color:#e9d5ff}
+
+/* ── SPEAK BTN ── */
 .spk-btn{background:rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.15);border-radius:50px;padding:7px 16px;font-size:.82rem;cursor:pointer;display:inline-flex;align-items:center;gap:5px;color:rgba(26,26,26,.5);transition:all .15s}
 .spk-btn.speaking{background:rgba(39,174,96,.12);border-color:#27ae60;color:#27ae60}
+
+/* ── ANSWER CARD ── */
 .a-card{width:100%;max-width:620px;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:flipIn .25s ease-out}
 @keyframes flipIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
 .a-hdr{padding:16px 22px;display:flex;align-items:center;gap:10px}
 .a-body{padding:clamp(20px,4vw,40px);display:flex;flex-direction:column;align-items:center;gap:12px;background:white;text-align:center}
-.a-q{font-family:'Noto Sans JP','DM Sans',sans-serif;font-size:clamp(1rem,3vw,1.4rem);color:rgba(26,26,26,.45);line-height:1.3;margin-bottom:4px}
-.a-ans{font-family:'DM Sans',sans-serif;font-size:clamp(1.4rem,4.5vw,2.4rem);font-weight:700;color:var(--ink);line-height:1.2}
+.a-q{font-family:'Hiragino Sans','Yu Gothic','Meiryo',-apple-system,sans-serif;font-size:clamp(1rem,3vw,1.4rem);color:rgba(26,26,26,.45);line-height:1.3;margin-bottom:4px}
+.a-ans{font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;font-size:clamp(1.4rem,4.5vw,2.4rem);font-weight:700;color:var(--ink);line-height:1.2}
 .judge-row{padding:14px 18px;display:flex;gap:12px;background:#f5f5f5}
-.jbtn{flex:1;padding:16px;border-radius:12px;border:none;font-size:clamp(1rem,3vw,1.5rem);font-weight:700;cursor:pointer;transition:transform .1s;font-family:'DM Sans',sans-serif}
+.jbtn{flex:1;padding:16px;border-radius:12px;border:none;font-size:clamp(1rem,3vw,1.5rem);font-weight:700;cursor:pointer;transition:transform .1s;font-family:-apple-system,'Helvetica Neue',Arial,sans-serif}
 .jbtn:active{transform:scale(.95)}
 .jbtn.ok{background:#27ae60;color:white}
 .jbtn.no{background:#e74c3c;color:white}
 .jbtn:disabled{opacity:.3;cursor:not-allowed}
+
+/* ── POINTS CARD ── */
 .pts-card{background:var(--surface);border:3px solid var(--gold);border-radius:20px;padding:clamp(20px,4vw,44px);display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;max-width:440px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
-.pts-lbl{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,5vw,2.2rem);letter-spacing:.08em;color:#27ae60}
-.pts-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(3.5rem,14vw,7rem);color:var(--gold);line-height:1;text-shadow:0 0 40px rgba(245,200,66,.4)}
-.nxt-btn{width:100%;padding:15px;border-radius:12px;border:none;background:var(--gold);color:var(--ink);font-family:'DM Sans',sans-serif;font-weight:700;font-size:1rem;cursor:pointer}
+.pts-lbl{font-family:'Impact','Arial Narrow',sans-serif;font-size:clamp(1.4rem,5vw,2.2rem);letter-spacing:.08em;color:#27ae60}
+.pts-big{font-family:'Impact','Arial Narrow',sans-serif;font-size:clamp(3.5rem,14vw,7rem);color:var(--gold);line-height:1;text-shadow:0 0 40px rgba(245,200,66,.4)}
+.nxt-btn{width:100%;padding:15px;border-radius:12px;border:none;background:var(--gold);color:var(--ink);font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;font-weight:700;font-size:1rem;cursor:pointer}
+.nxt-btn:active{transform:scale(.97)}
+
+/* ── WRONG CARD ── */
 .wrong-card{background:#2a0a0a;border:3px solid #e74c3c;border-radius:20px;padding:clamp(20px,4vw,44px);display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:440px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
-.wrong-lbl{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.6rem,6vw,2.5rem);letter-spacing:.08em;color:#e74c3c}
-.wrong-ans{background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.3);border-radius:10px;padding:12px 20px;font-size:clamp(.9rem,2.5vw,1.2rem);color:#f5a5a0;font-family:'Noto Sans JP','DM Sans',sans-serif}
+.wrong-lbl{font-family:'Impact','Arial Narrow',sans-serif;font-size:clamp(1.6rem,6vw,2.5rem);letter-spacing:.08em;color:#e74c3c}
+.wrong-ans{background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.3);border-radius:10px;padding:12px 20px;font-size:clamp(.9rem,2.5vw,1.2rem);color:#f5a5a0;font-family:'Hiragino Sans','Yu Gothic','Meiryo',-apple-system,sans-serif}
+
+/* ── STEAL CARD ── */
 .steal-res{background:linear-gradient(135deg,#2c1654,#1a0a33);border:3px solid var(--steal);border-radius:20px;padding:clamp(20px,4vw,44px);display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:440px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:spulse 1.2s ease-in-out infinite}
 @keyframes spulse{0%,100%{box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 0 0 rgba(139,92,246,.4)}60%{box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 40px 8px rgba(139,92,246,.6)}}
-.steal-hl{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,7vw,3.2rem);letter-spacing:.1em;color:#e9d5ff}
+.steal-hl{font-family:'Impact','Arial Narrow',sans-serif;font-size:clamp(1.8rem,7vw,3.2rem);letter-spacing:.1em;color:#e9d5ff}
 .steal-dtl{font-size:.9rem;color:rgba(233,213,255,.6)}
+
+/* ── WIN ── */
 #win{align-items:center;justify-content:center;background:var(--bg);overflow:hidden}
 .win-inner{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;animation:waura 2.5s ease-in-out infinite}
 @keyframes waura{0%,100%{background:radial-gradient(ellipse at 50% 20%,rgba(245,200,66,.18),transparent 65%)}50%{background:radial-gradient(ellipse at 50% 20%,rgba(245,200,66,.38),transparent 65%)}}
 .win-crown{font-size:clamp(3.5rem,12vw,6rem);text-align:center;animation:crownDrop .6s .2s both cubic-bezier(.17,.67,.24,1.4)}
 @keyframes crownDrop{from{transform:translateY(-40px) scale(.5);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
-.win-lbl{font-size:.7rem;text-transform:uppercase;letter-spacing:.3em;color:rgba(240,235,224,.4);animation:fadeUp .5s .4s both}
-.win-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,10vw,5rem);letter-spacing:.1em;color:var(--gold);text-align:center;line-height:1;text-shadow:0 0 40px rgba(245,200,66,.5);animation:fadeUp .5s .5s both}
-.win-badge{background:rgba(245,200,66,.15);border:2px solid rgba(245,200,66,.4);border-radius:50px;padding:8px 24px;font-family:'Bebas Neue',sans-serif;font-size:clamp(1.4rem,5vw,2rem);color:var(--gold);animation:fadeUp .5s .6s both}
-.win-jp{font-family:'Noto Sans JP',sans-serif;font-size:clamp(.85rem,2.5vw,1.1rem);color:rgba(240,235,224,.4);animation:fadeUp .5s .65s both}
+.win-lbl{font-size:.7rem;text-transform:uppercase;letter-spacing:.3em;color:rgba(240,235,224,.4)}
+.win-name{font-family:'Impact','Arial Narrow',sans-serif;font-size:clamp(2.5rem,10vw,5rem);letter-spacing:.1em;color:var(--gold);text-align:center;line-height:1;text-shadow:0 0 40px rgba(245,200,66,.5)}
+.win-badge{background:rgba(245,200,66,.15);border:2px solid rgba(245,200,66,.4);border-radius:50px;padding:8px 24px;font-family:'Impact','Arial Narrow',sans-serif;font-size:clamp(1.4rem,5vw,2rem);color:var(--gold)}
+.win-jp{font-family:'Hiragino Sans','Yu Gothic','Meiryo',sans-serif,sans-serif;font-size:clamp(.85rem,2.5vw,1.1rem);color:rgba(240,235,224,.4)}
 .fl-row{background:rgba(255,255,255,.05);border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:10px;font-size:clamp(.85rem,2.5vw,1rem)}
 .fl-row.top{background:rgba(245,200,66,.12);border:2px solid rgba(245,200,66,.4)}
-.fl-pts{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--gold);margin-left:auto}
-.final-list{width:100%;max-width:380px;display:flex;flex-direction:column;gap:5px;animation:fadeUp .5s .7s both}
+.fl-pts{font-family:'Impact','Arial Narrow',sans-serif;font-size:1.5rem;color:var(--gold);margin-left:auto}
+.final-list{width:100%;max-width:380px;display:flex;flex-direction:column;gap:5px}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
 
+<!-- HOME -->
 <div id="home" class="screen active">
-  <div class="home-logo">Dice Mastery</div>
+  <div class="home-logo">🎲 Dice Mastery</div>
   <div class="home-sub">Classroom English Game</div>
   <div class="offline-tag">✈ Offline Mode — No WiFi Needed</div>
   <div class="slot-pills">
@@ -134,11 +172,12 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
   </div>
   <div class="home-btns">
     <button class="btn btn-gold" onclick="showScreen('setup')">▶ Start Game / ゲームスタート</button>
-    <button class="btn btn-ghost" onclick="showHelp()">📋 How to Play / 遙び方</button>
+    <button class="btn btn-ghost" onclick="showHelp()">📋 How to Play / 遊び方</button>
   </div>
-  <div style="font-size:.6rem;color:rgba(240,235,224,.18);text-align:center;margin-top:4px">1–2 = Visual  ·  3–4 = Translation  ·  5 = Sentence  ·  6 = STEAL</div>
+  <div style="font-size:.6rem;color:rgba(240,235,224,.18);text-align:center;margin-top:4px">1–2 = Visual · 3–4 = Translation · 5 = Sentence · 6 = STEAL</div>
 </div>
 
+<!-- SETUP -->
 <div id="setup" class="screen">
   <div class="setup-wrap">
     <div class="setup-title">Game Setup / 設定</div>
@@ -162,7 +201,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
       </div>
     </div>
     <div>
-      <div class="lbl">Pick Animals / どうぶつを選ぼう</div>
+      <div class="lbl">Each group picks an animal / グループの動物を選ぼう</div>
       <div class="animals-grid" id="animals-grid"></div>
     </div>
     <div style="display:flex;gap:10px">
@@ -172,15 +211,17 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
   </div>
 </div>
 
+<!-- GAME -->
 <div id="game" class="screen">
   <div class="score-bar" id="score-bar"></div>
   <div class="slide-area" id="slide-area"></div>
   <div class="bottom-nav">
     <div class="bnav-info" id="bnav-info">Round 1</div>
-    <button class="bnav-btn" onclick="if(confirm('End game? / ゲームを終了しますか？'))showScreen('home')">Leave</button>
+    <button class="bnav-btn" onclick="showEndConfirm()">End Game</button>
   </div>
 </div>
 
+<!-- WIN -->
 <div id="win" class="screen">
   <div class="win-inner">
     <div style="font-size:clamp(1.2rem,4vw,2rem);text-align:center">🎊 🎉 🎊</div>
@@ -191,11 +232,12 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
     <div class="win-jp" id="win-jp"></div>
     <div style="width:60px;height:2px;background:rgba(245,200,66,.25);border-radius:2px"></div>
     <div class="final-list" id="final-list"></div>
-    <button class="btn btn-gold" style="max-width:300px;margin-top:10px" onclick="showScreen('home')">🏠 Home</button>
-    <button class="btn btn-ghost" style="max-width:300px" onclick="playAgain()">🔄 Play Again</button>
+    <button class="btn btn-gold" style="max-width:300px;margin-top:10px" onclick="playAgain()">🔄 Play Again</button>
+    <button class="btn btn-ghost" style="max-width:300px" onclick="showScreen('home')">🏠 Home</button>
   </div>
 </div>
 
+<!-- ANIMAL PICKER MODAL -->
 <div class="modal" id="modal">
   <div class="modal-box">
     <div class="modal-title" id="modal-title">Pick an animal</div>
@@ -204,11 +246,52 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
   </div>
 </div>
 
+<!-- HELP MODAL -->
+<div id="help-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:400;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#1a3328;border:2px solid rgba(245,200,66,.25);border-radius:20px;padding:24px;width:100%;max-width:420px;max-height:85vh;overflow-y:auto">
+    <div style="font-family:'Impact','Arial Narrow',sans-serif;font-size:1.4rem;letter-spacing:.08em;color:var(--gold);margin-bottom:16px;text-align:center">📋 How to Play / 遊び方</div>
+    <div style="display:flex;flex-direction:column;gap:8px;font-size:.88rem;line-height:1.65;color:#f0ebe0">
+      <div style="background:rgba(255,255,255,.05);border-radius:10px;padding:12px">
+        <span style="color:var(--gold);font-weight:700">① </span>Each group picks an animal / グループの動物を選ぼう
+      </div>
+      <div style="background:rgba(255,255,255,.05);border-radius:10px;padding:12px">
+        <span style="color:var(--gold);font-weight:700">② </span>Teacher taps 🎲 to roll the die / サイコロを振ろう
+      </div>
+      <div style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px;line-height:2.1">
+        1–2 &nbsp;= Visual 🖼<br>
+        3–4 &nbsp;= Translation 📖<br>
+        5 &nbsp;&nbsp;&nbsp;&nbsp;= Sentence 💬<br>
+        <span style="color:#c4b5fd;font-weight:700">6 &nbsp;&nbsp;&nbsp;&nbsp;= STEAL! 🎯</span>
+      </div>
+      <div style="background:rgba(255,255,255,.05);border-radius:10px;padding:12px">
+        <span style="color:var(--gold);font-weight:700">③ </span>Tap the card to reveal the answer / カードをタップ
+      </div>
+      <div style="background:rgba(255,255,255,.05);border-radius:10px;padding:12px">
+        <span style="color:var(--gold);font-weight:700">④ </span>Teacher taps <span style="color:#27ae60">✅ Correct</span> or <span style="color:#e74c3c">❌ Wrong</span>
+      </div>
+      <div style="background:rgba(255,255,255,.05);border-radius:10px;padding:12px">
+        <span style="color:var(--gold);font-weight:700">⑤ </span>Correct → roll again for points! / 正解→ポイントのためにサイコロを振ろう！
+      </div>
+      <div style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.3);border-radius:10px;padding:12px">
+        <span style="color:#c4b5fd;font-weight:700">⑥ STEAL</span> → Answer correctly, then roll to steal points from another group!
+      </div>
+      <div style="background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.2);border-radius:10px;padding:12px">
+        <span style="color:#27ae60;font-weight:700">⑦ </span>First group to reach the target score wins! / 目標ポイントに到達したグループの優勝！
+      </div>
+    </div>
+    <button onclick="document.getElementById('help-modal').style.display='none'" style="margin-top:16px;width:100%;padding:14px;border-radius:12px;border:none;background:var(--gold);color:var(--ink);font-weight:700;font-size:1rem;cursor:pointer">Got it! / わかった！</button>
+  </div>
+</div>
+
 <script>
-const ANIMALS=['🐕','🐈','🐸','🐔','🐇','🐄','🦊','🐼','🐨','🦁','🐯','🐷','🐧','🦋','🦄','🐲','🐙','🦈','🦅','🦉','🐺','🐻','🦝','🦦','🐿','🐝','🩩','🦖','🦕','🐬'];
-const FACES=['','⚀','⚁','⚂','⚃','⚄','⚅'];
-const SLOT_NAMES={1:'Visual 🖼',2:'Translation 📖',4:'Sentence 💬'};
-function dieToSlot(r){return r<=2?1:r<=4?2:r===5?4:0;}
+const ANIMALS = ['🐕','🐈','🐸','🐔','🐇','🐄','🦊','🐼','🐨','🦁','🐯','🐷','🐧','🦋','🦄','🐲','🐙','🦈','🦅','🦉','🐺','🐻','🦝','🦦','🐿','🐝','🦩','🦖','🦕','🐬'];
+const FACES = ['','⚀','⚁','⚂','⚃','⚄','⚅'];
+const SLOT_NAMES = {1:'Visual 🖼', 2:'Translation 📖', 4:'Sentence 💬'};
+const SLOT_COLORS = {1:'var(--s1)', 2:'var(--s2)', 4:'var(--s4)'};
+const SLOT_BGCOLORS = {1:'var(--s1bg)', 2:'var(--s2bg)', 4:'var(--s4bg)'};
+
+// Die → slot: 1-2=Visual, 3-4=Translation, 5=Sentence, 6=STEAL
+function dieToSlot(r){ return r<=2?1 : r<=4?2 : r===5?4 : 0; }
 
 const CARDS = {
   1:[
@@ -264,68 +347,450 @@ const CARDS = {
   ],
 };
 
-const qs={};
-function getCard(slot){if(!qs[slot]||!qs[slot].length)qs[slot]=[...CARDS[slot]].sort(()=>Math.random()-.5);return qs[slot].pop();}
+// Shuffled card queues
+const qs = {};
+function getCard(slot){
+  if(!qs[slot] || !qs[slot].length) qs[slot] = [...CARDS[slot]].sort(()=>Math.random()-.5);
+  return {...qs[slot].pop(), slot};
+}
 
-let players=[],cur=0,target=20,count=4,round=1,phase='roll',card=null,victim=null,stealAmt=0,picked=[],pickerIdx=-1;
+// ── STATE ──
+let players = [], cur = 0, target = 20, count = 4, round = 1;
+let phase = 'roll'; // roll | question | answer | pts | pts_steal | wrong | steal_reveal | steal_result
+let card = null, victimIdx = -1, stealAmt = 0;
+let picked = [], pickerIdx = -1;
 
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
-function setCount(n){count=n;document.querySelectorAll('#pc-row .sel-btn').forEach((b,i)=>b.classList.toggle('on',i+2===n));while(picked.length<n)picked.push(null);picked=picked.slice(0,n);renderGrid();checkReady();}
-function setTarget(n){target=n;document.querySelectorAll('#pt-row .sel-btn').forEach(b=>b.classList.toggle('on',parseInt(b.textContent)===n));}
-function renderGrid(){const g=document.getElementById('animals-grid');g.innerHTML='';for(let i=0;i<count;i++){const d=document.createElement('div');d.className='a-slot';d.innerHTML='<div class="a-num">P'+(i+1)+'</div>';const b=document.createElement('button');b.className='a-pick'+(picked[i]?' filled':'');b.textContent=picked[i]||'+';b.style.fontSize=picked[i]?'1.8rem':'1.4rem';b.onclick=()=>openModal(i);d.appendChild(b);g.appendChild(d);}}
-function openModal(idx){pickerIdx=idx;document.getElementById('modal-title').textContent='Player '+(idx+1)+' — Pick an animal';const g=document.getElementById('picker-grid');g.innerHTML='';ANIMALS.forEach(a=>{const taken=picked.some((p,pi)=>p===a&&pi!==idx);const b=document.createElement('button');b.className='p-btn'+(taken?' taken':'');b.textContent=a;if(!taken)b.onclick=()=>{picked[pickerIdx]=a;closeModal();renderGrid();checkReady();};g.appendChild(b);});document.getElementById('modal').classList.add('open');}
-function closeModal(){document.getElementById('modal').classList.remove('open');}
-function checkReady(){document.getElementById('start-btn').disabled=!picked.slice(0,count).every(a=>a);}
-function startGame(){players=picked.slice(0,count).map(a=>({a,s:0}));cur=0;round=1;phase='roll';Object.keys(qs).forEach(k=>delete qs[k]);showScreen('game');render();}
-function playAgain(){players.forEach(p=>p.s=0);cur=0;round=1;phase='roll';Object.keys(qs).forEach(k=>delete qs[k]);showScreen('game');render();}
+// ── SCREEN ──
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
 
-function render(){
-  renderBar();document.getElementById('bnav-info').textContent='Round '+round;
-  const area=document.getElementById('slide-area'),p=players[cur];
-  if(phase==='roll'){
-    area.innerHTML=`<div class="roll-card"><div class="turn-lbl">GROUP ${cur+1}'S TURN! / グループ${cur+1}のターン！</div><div class="turn-emoji">${p.a}</div><div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.6rem,5vw,2.5rem);letter-spacing:.08em;color:var(--gold)">${p.a}</div><div class="roll-hint">1–2 = Visual 🖼  |  3–4 = Translation 📖  |  5 = Sentence 💬  |  6 = STEAL! 🎯</div><button class="die-btn" onclick="doRoll()">🎲</button></div>`;
-  } else if(phase==='question'){
-    const isS=card.steal,cls=isS?'steal-card':'slot-'+card.slot,lbl=isS?'🎯 STEAL!':SLOT_NAMES[card.slot];
-    area.innerHTML=`<div class="q-card ${cls}" onclick="reveal()"><div class="q-hdr"><span class="q-slot-lbl">${lbl}</span><span style="font-size:.8rem;opacity:.6">${p.a}</span></div><div class="q-body"><div class="q-main">${card.q}</div><div class="q-instr">${card.i}</div>${card.slot!==1?`<button class="spk-btn" onclick="event.stopPropagation();speakCard(card)">🔊 Hear</button>`:''}<div class="q-tap">Tap to reveal / タップして答えを見る</div></div><div class="q-ftr"><span style="font-size:.62rem;opacity:.3">Slot ${card.slot||''}</span></div></div>`;
-    if(card.slot!==1&&audioUnlocked)setTimeout(()=>{try{speakCard(card);}catch(e){}},400);
-  } else if(phase==='answer'){
-    const sc=card.steal?'#8b5cf6':card.slot===1?'var(--s1)':card.slot===2?'var(--s2)':'var(--s4)',sbg=card.steal?'#2c1654':card.slot===1?'var(--s1bg)':card.slot===2?'var(--s2bg)':'var(--s4bg)';
-    area.innerHTML=`<div class="a-card"><div class="a-hdr" style="background:${sbg}"><div><div style="font-size:.62rem;text-transform:uppercase;letter-spacing:.18em;color:${sc};opacity:.7">Answer / 答え</div><div style="font-size:.9rem;font-weight:700;color:${sc}">${p.a}</div></div><button class="spk-btn" style="margin-left:auto" onclick="speakAnswer(card)">🔊 Hear</button></div><div class="a-body"><div class="a-q">${card.q}</div><div class="a-ans">${card.a}</div></div><div class="judge-row"><button class="jbtn ok" onclick="judgeOK()">✅ 正解</button><button class="jbtn no" onclick="judgeNo()">❌ 不正解</button></div></div>`;
-    if(audioUnlocked)setTimeout(()=>{try{speakAnswer(card);}catch(e){}},400);
-  } else if(phase==='pts'){
-    area.innerHTML=`<div class="pts-card"><div class="pts-lbl">✅ CORRECT! / 正解！</div><div style="font-size:.8rem;color:rgba(240,235,224,.4)">ポイントのためにサイコロを振ろう！</div><button class="die-btn" id="pts-die" onclick="rollPts()">🎲</button><div class="pts-big" id="pts-big" style="display:none">0</div><button class="nxt-btn" id="pts-nxt" style="display:none" onclick="next()">Next Group ▶</button></div>`;
-  } else if(phase==='wrong'){
-    area.innerHTML=`<div class="wrong-card"><div style="font-size:3rem">❌</div><div class="wrong-lbl">Not quite! / 残念！</div><div class="wrong-ans">${card.a}</div><button class="nxt-btn" onclick="next()">Next Group ▶</button></div>`;
-  } else if(phase==='steal'){
-    area.innerHTML=`<div class="steal-res"><div style="font-size:3rem">🎯</div><div class="steal-hl">STEAL!</div><div class="steal-dtl">${p.a} steals from ${victim?victim.a:'?'}</div><div style="font-size:.8rem;color:rgba(233,213,255,.5)">サイコロを振ろう！</div><button class="die-btn" style="background:#2c1654;box-shadow:0 8px 24px rgba(139,92,246,.4)" onclick="rollSteal()">🎲</button></div>`;
-  } else if(phase==='steal_result'){
-    area.innerHTML=`<div class="steal-res"><div style="font-size:3rem">🎯</div><div class="steal-hl">${p.a} STEALS ${stealAmt}!</div><div class="steal-dtl">From: ${victim.a}</div><button class="nxt-btn" style="background:var(--steal);color:white" onclick="next()">Next Group ▶</button></div>`;
+// ── SETUP ──
+function setCount(n){
+  count = n;
+  document.querySelectorAll('#pc-row .sel-btn').forEach((b,i)=>b.classList.toggle('on',i+2===n));
+  while(picked.length < n) picked.push(null);
+  picked = picked.slice(0, n);
+  renderGrid();
+  checkReady();
+}
+function setTarget(n){
+  target = n;
+  document.querySelectorAll('#pt-row .sel-btn').forEach(b=>b.classList.toggle('on',parseInt(b.textContent)===n));
+}
+function renderGrid(){
+  const g = document.getElementById('animals-grid');
+  g.innerHTML = '';
+  for(let i=0;i<count;i++){
+    const d = document.createElement('div');
+    d.className = 'a-slot';
+    d.innerHTML = '<div class="a-num">G'+(i+1)+'</div>';
+    const b = document.createElement('button');
+    b.className = 'a-pick' + (picked[i]?' filled':'');
+    b.textContent = picked[i] || '+';
+    b.style.fontSize = picked[i] ? '1.8rem' : '1.4rem';
+    b.onclick = ()=>openModal(i);
+    d.appendChild(b);
+    g.appendChild(d);
   }
 }
-function renderBar(){document.getElementById('score-bar').innerHTML=players.map((p,i)=>`<div class="sc${i===cur?' active':''}"><div class="sa">${p.a}</div><div style="font-size:.55rem;color:rgba(240,235,224,.35);font-weight:700">G${i+1}</div><div class="sp">${p.s}</div></div>`).join('');}
-function doRoll(){const b=document.querySelector('.die-btn');if(!b)return;b.classList.add('rolling');b.textContent=FACES[Math.ceil(Math.random()*6)];setTimeout(()=>{const r=Math.ceil(Math.random()*6);b.textContent=FACES[r];b.classList.remove('rolling');setTimeout(()=>handleRoll(r),350);},480);}
-function handleRoll(r){const slot=dieToSlot(r);if(slot===0){flash('sf');const others=players.filter((_,i)=>i!==cur&&players[i].s>0);if(!others.length){document.getElementById('slide-area').innerHTML=`<div class="steal-res"><div style="font-size:3rem">🎯</div><div class="steal-hl">STEAL!</div><div class="steal-dtl">No points to steal yet!</div><button class="nxt-btn" style="background:var(--steal);color:white" onclick="next()">Next Group ▶</button></div>`;return;}victim=others[Math.floor(Math.random()*others.length)];phase='steal';render();}else{card=getCard(slot);card.slot=slot;phase='question';render();}}
-function reveal(){phase='answer';render();}
-function judgeOK(){flash('cf');document.querySelectorAll('.jbtn').forEach(b=>b.disabled=true);setTimeout(()=>{phase='pts';render();},400);}
-function judgeNo(){phase='wrong';render();}
-function rollPts(){const b=document.getElementById('pts-die');if(!b)return;b.classList.add('rolling');b.textContent=FACES[Math.ceil(Math.random()*6)];setTimeout(()=>{const r=Math.ceil(Math.random()*6);b.textContent=FACES[r];b.classList.remove('rolling');setTimeout(()=>{players[cur].s+=r;renderBar();const big=document.getElementById('pts-big'),nxt=document.getElementById('pts-nxt');if(big){big.textContent='+'+r;big.style.display='block';}if(nxt)nxt.style.display='block';b.style.display='none';if(players[cur].s>=target)setTimeout(showWin,900);},350);},480);}
-function rollSteal(){const b=document.querySelector('.steal-res .die-btn');if(!b)return;b.classList.add('rolling');b.textContent=FACES[Math.ceil(Math.random()*6)];setTimeout(()=>{const r=Math.ceil(Math.random()*6);b.textContent=FACES[r];b.classList.remove('rolling');setTimeout(()=>{const vi=players.indexOf(victim),actual=Math.min(r,victim.s);players[cur].s+=actual;if(vi>=0)players[vi].s=Math.max(0,players[vi].s-actual);stealAmt=actual;renderBar();phase='steal_result';render();if(players[cur].s>=target)setTimeout(showWin,900);},350);},480);}
-function next(){cur=(cur+1)%players.length;if(cur===0)round++;phase='roll';render();}
-function showWin(){const sorted=[...players].sort((a,b)=>b.s-a.s),w=sorted[0],medals=['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣'];document.getElementById('win-name').textContent=w.a;document.getElementById('win-badge').textContent=w.s+' POINTS';document.getElementById('win-jp').textContent=w.a+'、おめでとうございます！';document.getElementById('final-list').innerHTML=sorted.map((p,i)=>`<div class="fl-row${i===0?' top':''}"><span>${medals[i]||''}</span><span style="font-size:1.4rem">${p.a}</span><span class="fl-pts">${p.s} pts</span></div>`).join('');showScreen('win');}
-function flash(cls){const el=document.getElementById('game');el.classList.remove('sf','cf');void el.offsetWidth;el.classList.add(cls);setTimeout(()=>el.classList.remove(cls),800);}
-function showHelp(){alert('HOW TO PLAY / 遙び方\n\n① Each player picks an animal\n② Tap 🎲 to roll the die\n   1–2 = Visual 🖼 | 3–4 = Translation 📖 | 5 = Sentence 💬 | 6 = STEAL! 🎯\n③ Read the card aloud\n④ Teacher taps ✅ Correct or ❌ Wrong\n⑤ Correct → roll again for points!\n⑥ First to '+target+' points wins!');}
+function openModal(idx){
+  pickerIdx = idx;
+  document.getElementById('modal-title').textContent = 'Group '+(idx+1)+' — Pick an animal / グループ'+(idx+1)+'の動物';
+  const g = document.getElementById('picker-grid');
+  g.innerHTML = '';
+  ANIMALS.forEach(a=>{
+    const taken = picked.some((p,pi)=>p===a && pi!==idx);
+    const b = document.createElement('button');
+    b.className = 'p-btn' + (taken?' taken':'');
+    b.textContent = a;
+    if(!taken) b.onclick = ()=>{ picked[pickerIdx]=a; closeModal(); renderGrid(); checkReady(); };
+    g.appendChild(b);
+  });
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+function checkReady(){
+  document.getElementById('start-btn').disabled = !picked.slice(0,count).every(a=>a);
+}
+function startGame(){
+  players = picked.slice(0,count).map(a=>({a, s:0}));
+  cur = 0; round = 1; phase = 'roll'; card = null; victimIdx = -1;
+  Object.keys(qs).forEach(k=>delete qs[k]);
+  showScreen('game');
+  render();
+}
+function playAgain(){
+  players.forEach(p=>p.s=0);
+  cur = 0; round = 1; phase = 'roll'; card = null; victimIdx = -1;
+  Object.keys(qs).forEach(k=>delete qs[k]);
+  showScreen('game');
+  render();
+}
 
-let voices=[],prefVoice=null,audioUnlocked=false;
-function initVoice(){if(!('speechSynthesis'in window))return;const load=()=>{voices=window.speechSynthesis.getVoices();for(const n of['Samantha','Karen','Moira','Google US English','en-US']){const v=voices.find(v=>v.name.includes(n)||v.lang.startsWith(n));if(v){prefVoice=v;break;}}if(!prefVoice)prefVoice=voices.find(v=>v.lang.startsWith('en'))||voices[0];};load();window.speechSynthesis.onvoiceschanged=load;}
-function unlockAudio(){if(audioUnlocked||!('speechSynthesis'in window))return;audioUnlocked=true;try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;u.rate=2;window.speechSynthesis.speak(u);setTimeout(()=>window.speechSynthesis.cancel(),100);}catch(e){}setInterval(()=>{if(!window.speechSynthesis.speaking){try{const k=new SpeechSynthesisUtterance(' ');k.volume=0;k.rate=2;window.speechSynthesis.speak(k);setTimeout(()=>window.speechSynthesis.cancel(),80);}catch(e){}}},20000);}
+// ── RENDER ──
+function render(){
+  renderBar();
+  document.getElementById('bnav-info').textContent = 'Round ' + round;
+  const area = document.getElementById('slide-area');
+  const p = players[cur];
+
+  if(phase === 'roll'){
+    area.innerHTML = `
+      <div class="roll-card">
+        <div class="turn-lbl">GROUP ${cur+1}'S TURN! / グループ${cur+1}のターン！</div>
+        <div class="turn-emoji">${p.a}</div>
+        <div class="roll-hint">1–2 = Visual 🖼 &nbsp;|&nbsp; 3–4 = Translation 📖 &nbsp;|&nbsp; 5 = Sentence 💬 &nbsp;|&nbsp; 6 = STEAL! 🎯</div>
+        <button class="die-btn" id="main-die" onclick="doRoll()">🎲</button>
+      </div>`;
+  }
+  else if(phase === 'question'){
+    const isSteal = card.steal;
+    const cls = isSteal ? 'steal-card' : 'slot-'+card.slot;
+    const lbl = isSteal ? '🎯 STEAL! (Answer to steal points!)' : SLOT_NAMES[card.slot];
+    const showSpeak = !isSteal && card.slot !== 1;
+    area.innerHTML = `
+      <div class="q-card ${cls}" onclick="revealAnswer()">
+        <div class="q-hdr">
+          <span class="q-slot-lbl">${lbl}</span>
+          <span style="font-size:.8rem;opacity:.6">${p.a} G${cur+1}</span>
+        </div>
+        <div class="q-body">
+          <div class="q-main">${card.q}</div>
+          <div class="q-instr">${card.i}</div>
+          ${showSpeak ? '<button class="spk-btn" onclick="event.stopPropagation();speakCard(card)">🔊 Hear</button>' : ''}
+          <div class="q-tap">Tap card to reveal answer / タップして答えを見る</div>
+        </div>
+        <div class="q-ftr"><span style="font-size:.62rem;opacity:.3">${isSteal?'Answer correctly to steal!':''}</span></div>
+      </div>`;
+    if(showSpeak && audioUnlocked) setTimeout(()=>{ try{ speakCard(card); }catch(e){} }, 400);
+  }
+  else if(phase === 'answer'){
+    const isSteal = card.steal;
+    const sc = isSteal ? '#8b5cf6' : SLOT_COLORS[card.slot];
+    const sbg = isSteal ? '#2c1654' : SLOT_BGCOLORS[card.slot];
+    area.innerHTML = `
+      <div class="a-card">
+        <div class="a-hdr" style="background:${sbg}">
+          <div>
+            <div style="font-size:.62rem;text-transform:uppercase;letter-spacing:.18em;color:${sc};opacity:.8">Answer / 答え</div>
+            <div style="font-size:.9rem;font-weight:700;color:${sc}">${p.a} — G${cur+1}</div>
+          </div>
+          <button class="spk-btn" style="margin-left:auto" onclick="speakAnswer(card)">🔊 Hear</button>
+        </div>
+        <div class="a-body">
+          <div class="a-q">${card.q}</div>
+          <div class="a-ans">${card.a}</div>
+        </div>
+        <div class="judge-row">
+          <button class="jbtn ok" onclick="judgeOK()">✅ 正解 Correct</button>
+          <button class="jbtn no" onclick="judgeNo()">❌ 不正解 Wrong</button>
+        </div>
+      </div>`;
+    if(audioUnlocked) setTimeout(()=>{ try{ speakAnswer(card); }catch(e){} }, 400);
+  }
+  else if(phase === 'pts'){
+    area.innerHTML = `
+      <div class="pts-card">
+        <div class="pts-lbl">✅ CORRECT! / 正解！</div>
+        <div style="font-size:.85rem;color:rgba(240,235,224,.4)">Roll for points! / ポイントのためにサイコロを振ろう！</div>
+        <button class="die-btn" id="pts-die" onclick="rollPts()">🎲</button>
+        <div class="pts-big" id="pts-big" style="display:none">+0</div>
+        <button class="nxt-btn" id="pts-nxt" style="display:none" onclick="nextTurn()">Next Group ▶</button>
+      </div>`;
+  }
+  else if(phase === 'pts_steal'){
+    const victim = players[victimIdx];
+    area.innerHTML = `
+      <div class="steal-res">
+        <div style="font-size:2.5rem">🎯</div>
+        <div class="steal-hl">STEAL!</div>
+        <div class="steal-dtl">${p.a} G${cur+1} → ${victim.a} G${victimIdx+1}</div>
+        <div style="font-size:.8rem;color:rgba(233,213,255,.5)">Roll to see how many points you steal!</div>
+        <button class="die-btn" id="steal-die" style="background:#2c1654;box-shadow:0 8px 24px rgba(139,92,246,.4)" onclick="rollSteal()">🎲</button>
+        <div class="steal-hl" id="steal-big" style="display:none;font-size:clamp(3rem,12vw,5rem)">+0</div>
+        <button class="nxt-btn" id="steal-nxt" style="display:none;background:var(--steal);color:white" onclick="nextTurn()">Next Group ▶</button>
+      </div>`;
+  }
+  else if(phase === 'wrong'){
+    area.innerHTML = `
+      <div class="wrong-card">
+        <div style="font-size:3rem">❌</div>
+        <div class="wrong-lbl">Not quite! / 残念！</div>
+        <div class="wrong-ans">${card.a}</div>
+        <button class="nxt-btn" style="background:#e74c3c;color:white;margin-top:8px" onclick="nextTurn()">Next Group ▶</button>
+      </div>`;
+  }
+}
+
+function renderBar(){
+  document.getElementById('score-bar').innerHTML = players.map((p,i)=>`
+    <div class="sc${i===cur?' active':''}">
+      <div class="sa">${p.a}</div>
+      <div class="sg">G${i+1}</div>
+      <div class="sp">${p.s}</div>
+    </div>`).join('');
+}
+
+// ── GAME LOGIC ──
+function flash(cls){
+  const el = document.getElementById('game');
+  el.classList.remove('sf','cf');
+  void el.offsetWidth;
+  el.classList.add(cls);
+  setTimeout(()=>el.classList.remove(cls), 800);
+}
+
+function doRoll(){
+  const b = document.getElementById('main-die');
+  if(!b) return;
+  b.classList.add('rolling');
+  b.style.pointerEvents = 'none';
+  // Animate through random faces
+  let ticks = 0;
+  const tick = setInterval(()=>{
+    b.textContent = FACES[Math.ceil(Math.random()*6)];
+    if(++ticks > 5) clearInterval(tick);
+  }, 80);
+  setTimeout(()=>{
+    const r = Math.ceil(Math.random()*6);
+    b.textContent = FACES[r];
+    b.classList.remove('rolling');
+    setTimeout(()=>handleRoll(r), 350);
+  }, 480);
+}
+
+function handleRoll(r){
+  const slot = dieToSlot(r);
+  if(slot === 0){
+    // STEAL — pick a random victim, show steal question
+    flash('sf');
+    const others = players.map((_,i)=>i).filter(i=>i!==cur);
+    victimIdx = others[Math.floor(Math.random()*others.length)];
+    // Give them a question to answer first — get card from random allowed slot
+    const stealSlots = [1,2,4];
+    const stealSlot = stealSlots[Math.floor(Math.random()*stealSlots.length)];
+    card = getCard(stealSlot);
+    card.steal = true;
+    phase = 'question';
+    render();
+  } else {
+    card = getCard(slot);
+    phase = 'question';
+    render();
+  }
+}
+
+function revealAnswer(){ phase = 'answer'; render(); }
+
+function judgeOK(){
+  flash('cf');
+  document.querySelectorAll('.jbtn').forEach(b=>b.disabled=true);
+  setTimeout(()=>{
+    if(card.steal){
+      phase = 'pts_steal';
+    } else {
+      phase = 'pts';
+    }
+    render();
+  }, 400);
+}
+
+function judgeNo(){ phase = 'wrong'; render(); }
+
+function rollPts(){
+  const b = document.getElementById('pts-die');
+  if(!b) return;
+  b.style.pointerEvents = 'none';
+  let ticks = 0;
+  const tick = setInterval(()=>{ b.textContent=FACES[Math.ceil(Math.random()*6)]; if(++ticks>5)clearInterval(tick); },80);
+  setTimeout(()=>{
+    const r = Math.ceil(Math.random()*6);
+    b.textContent = FACES[r];
+    setTimeout(()=>{
+      players[cur].s += r;
+      renderBar();
+      const big = document.getElementById('pts-big');
+      const nxt = document.getElementById('pts-nxt');
+      if(big){ big.textContent = '+'+r; big.style.display = 'block'; }
+      if(nxt) nxt.style.display = 'block';
+      b.style.display = 'none';
+      if(players[cur].s >= target) setTimeout(showWin, 900);
+    }, 350);
+  }, 480);
+}
+
+function rollSteal(){
+  const b = document.getElementById('steal-die');
+  if(!b) return;
+  b.style.pointerEvents = 'none';
+  let ticks = 0;
+  const tick = setInterval(()=>{ b.textContent=FACES[Math.ceil(Math.random()*6)]; if(++ticks>5)clearInterval(tick); },80);
+  setTimeout(()=>{
+    const r = Math.ceil(Math.random()*6);
+    b.textContent = FACES[r];
+    setTimeout(()=>{
+      const victim = players[victimIdx];
+      const actual = Math.min(r, victim.s); // can't steal more than they have
+      victim.s = Math.max(0, victim.s - actual);
+      players[cur].s += actual;
+      stealAmt = actual;
+      renderBar();
+      const big = document.getElementById('steal-big');
+      const nxt = document.getElementById('steal-nxt');
+      if(big){ big.textContent = 'STOLE '+actual+'!'; big.style.display='block'; }
+      if(nxt) nxt.style.display = 'block';
+      b.style.display = 'none';
+      if(players[cur].s >= target) setTimeout(showWin, 900);
+    }, 350);
+  }, 480);
+}
+
+function nextTurn(){
+  cur = (cur+1) % players.length;
+  if(cur === 0) round++;
+  phase = 'roll'; card = null; victimIdx = -1; stealAmt = 0;
+  render();
+}
+
+function showWin(){
+  const sorted = [...players].map((p,i)=>({...p,idx:i})).sort((a,b)=>b.s-a.s);
+  const w = sorted[0];
+  const medals = ['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣'];
+  document.getElementById('win-name').textContent = w.a + '  Group ' + (w.idx+1);
+  document.getElementById('win-badge').textContent = w.s + ' POINTS';
+  document.getElementById('win-jp').textContent = 'グループ'+(w.idx+1)+'、おめでとうございます！';
+  document.getElementById('final-list').innerHTML = sorted.map((p,i)=>`
+    <div class="fl-row${i===0?' top':''}">
+      <span>${medals[i]||''}</span>
+      <span style="font-size:1.4rem">${p.a}</span>
+      <span style="font-size:.75rem;opacity:.4">G${p.idx+1}</span>
+      <span class="fl-pts">${p.s} pts</span>
+    </div>`).join('');
+  showScreen('win');
+}
+
+function showHelp(){ document.getElementById('help-modal').style.display='flex'; }
+
+// ── VOICE ──
+let voices=[], prefVoice=null, audioUnlocked=false;
+function initVoice(){
+  if(!('speechSynthesis' in window)) return;
+  const load=()=>{
+    voices=window.speechSynthesis.getVoices();
+    for(const n of['Samantha','Karen','Moira','Google US English','en-US']){
+      const v=voices.find(v=>v.name.includes(n)||v.lang.startsWith(n));
+      if(v){prefVoice=v;break;}
+    }
+    if(!prefVoice) prefVoice=voices.find(v=>v.lang.startsWith('en'))||voices[0];
+  };
+  load();
+  window.speechSynthesis.onvoiceschanged=load;
+}
+function unlockAudio(){
+  if(audioUnlocked||!('speechSynthesis' in window)) return;
+  audioUnlocked=true;
+  try{
+    const u=new SpeechSynthesisUtterance(' ');
+    u.volume=0; u.rate=2;
+    window.speechSynthesis.speak(u);
+    setTimeout(()=>window.speechSynthesis.cancel(),100);
+  }catch(e){}
+  setInterval(()=>{
+    if(!window.speechSynthesis.speaking){
+      try{
+        const k=new SpeechSynthesisUtterance(' ');
+        k.volume=0; k.rate=2;
+        window.speechSynthesis.speak(k);
+        setTimeout(()=>window.speechSynthesis.cancel(),80);
+      }catch(e){}
+    }
+  },20000);
+}
+function speak(t){
+  if(!('speechSynthesis' in window)||!t) return;
+  window.speechSynthesis.cancel();
+  const c=t.replace(/[\u{1F000}-\u{1FFFF}]/gu,'').replace(/[\u3000-\u9FFF\u3040-\u30FF]/g,'').replace(/\s+/g,' ').trim();
+  if(!c) return;
+  const u=new SpeechSynthesisUtterance(c);
+  u.lang='en-US'; u.rate=0.88; u.volume=1;
+  if(prefVoice) u.voice=prefVoice;
+  u.onend=()=>document.querySelectorAll('.spk-btn').forEach(b=>b.classList.remove('speaking'));
+  u.onerror=()=>document.querySelectorAll('.spk-btn').forEach(b=>b.classList.remove('speaking'));
+  document.querySelectorAll('.spk-btn').forEach(b=>b.classList.add('speaking'));
+  try{ if(window.speechSynthesis.paused) window.speechSynthesis.resume(); }catch(e){}
+  window.speechSynthesis.speak(u);
+  setTimeout(()=>{ try{ if(window.speechSynthesis.speaking){ window.speechSynthesis.pause(); window.speechSynthesis.resume(); } }catch(e){} },200);
+}
+function speakJP(t){
+  if(!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(t);
+  u.lang='ja-JP'; u.rate=0.85;
+  const jv=voices.find(v=>v.lang==='ja-JP'||v.lang.startsWith('ja'));
+  if(jv) u.voice=jv;
+  window.speechSynthesis.speak(u);
+}
+function speakCard(c){
+  unlockAudio();
+  if(!c) return;
+  if(/^[\p{Emoji}\s]+$/u.test(c.q.trim())) return;
+  if(/[\u3040-\u9FFF]/.test(c.q)){ speakJP(c.q); return; }
+  speak(c.q);
+}
+function speakAnswer(c){
+  unlockAudio();
+  if(!c) return;
+  const isJP=/[\u3040-\u9FFF]/.test(c.q);
+  const isEmoji=/^[\p{Emoji}\s]+$/u.test(c.q.trim());
+  speak((!isJP&&!isEmoji ? c.q+'... ' : '')+c.a);
+}
+
 document.addEventListener('touchstart',unlockAudio,{once:true,passive:true});
 document.addEventListener('click',unlockAudio,{once:true});
-function speak(t){if(!('speechSynthesis'in window)||!t)return;window.speechSynthesis.cancel();const c=t.replace(/[\u{1F000}-\u{1FFFF}]/gu,'').replace(/[\u3000-\u9FFF\u3040-\u30FF]/g,'').replace(/\s+/g,' ').trim();if(!c)return;const u=new SpeechSynthesisUtterance(c);u.lang='en-US';u.rate=0.88;u.volume=1;if(prefVoice)u.voice=prefVoice;u.onend=()=>document.querySelectorAll('.spk-btn').forEach(b=>b.classList.remove('speaking'));u.onerror=()=>document.querySelectorAll('.spk-btn').forEach(b=>b.classList.remove('speaking'));document.querySelectorAll('.spk-btn').forEach(b=>b.classList.add('speaking'));try{if(window.speechSynthesis.paused)window.speechSynthesis.resume();}catch(e){}window.speechSynthesis.speak(u);setTimeout(()=>{try{if(window.speechSynthesis.speaking){window.speechSynthesis.pause();window.speechSynthesis.resume();}}catch(e){}},200);}
-function speakJP(t){if(!('speechSynthesis'in window))return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ja-JP';u.rate=0.85;const jv=voices.find(v=>v.lang==='ja-JP'||v.lang.startsWith('ja'));if(jv)u.voice=jv;window.speechSynthesis.speak(u);}
-function speakCard(c){unlockAudio();if(!c)return;if(/^[\p{Emoji}\s]+$/u.test(c.q.trim()))return;if(/[\u3040-\u9FFF]/.test(c.q)){speakJP(c.q);return;}speak(c.q);}
-function speakAnswer(c){unlockAudio();if(!c)return;const isJP=/[\u3040-\u9FFF]/.test(c.q),isEmoji=/^[\p{Emoji}\s]+$/u.test(c.q.trim());speak((!isJP&&!isEmoji?c.q+'... ':'')+c.a);}
 
-initVoice();setCount(4);setTarget(20);
+initVoice();
+setCount(4);
+setTarget(20);
 </script>
+
+<!-- HELP MODAL -->
+<div id="help-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.82);z-index:400;overflow-y:auto;-webkit-overflow-scrolling:touch">
+  <div style="min-height:100%;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px">
+    <div style="background:#1a3328;border:2px solid rgba(245,200,66,.3);border-radius:20px;padding:24px;width:100%;max-width:420px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.08em;color:#f5c842;margin-bottom:16px;text-align:center">📋 How to Play / 遊び方</div>
+      <div style="font-size:.9rem;line-height:1.6;color:#f0ebe0">
+        <div style="background:rgba(255,255,255,.06);border-radius:10px;padding:12px;margin-bottom:8px"><b style="color:#f5c842">① </b>Each group picks an animal<br><span style="opacity:.5;font-size:.8rem">グループの動物を選ぼう</span></div>
+        <div style="background:rgba(255,255,255,.06);border-radius:10px;padding:12px;margin-bottom:8px"><b style="color:#f5c842">② </b>Teacher taps 🎲 to roll<br><span style="opacity:.5;font-size:.8rem">サイコロを振ろう</span></div>
+        <div style="background:rgba(0,0,0,.35);border-radius:10px;padding:12px;margin-bottom:8px;font-size:.85rem;line-height:2">&nbsp;1–2 = Visual 🖼<br>&nbsp;3–4 = Translation 📖<br>&nbsp;5 &nbsp;&nbsp;&nbsp;= Sentence 💬<br>&nbsp;<b style="color:#c4b5fd">6 &nbsp;&nbsp;&nbsp;= STEAL! 🎯</b></div>
+        <div style="background:rgba(255,255,255,.06);border-radius:10px;padding:12px;margin-bottom:8px"><b style="color:#f5c842">③ </b>Tap the card → see the answer<br><span style="opacity:.5;font-size:.8rem">カードをタップして答えを見る</span></div>
+        <div style="background:rgba(255,255,255,.06);border-radius:10px;padding:12px;margin-bottom:8px"><b style="color:#f5c842">④ </b>Teacher taps <b style="color:#27ae60">✅ Correct</b> or <b style="color:#e74c3c">❌ Wrong</b></div>
+        <div style="background:rgba(255,255,255,.06);border-radius:10px;padding:12px;margin-bottom:8px"><b style="color:#f5c842">⑤ </b>Correct → roll again for points!<br><span style="opacity:.5;font-size:.8rem">正解→もう一度サイコロを振ろう！</span></div>
+        <div style="background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.35);border-radius:10px;padding:12px;margin-bottom:8px"><b style="color:#c4b5fd">⑥ STEAL 🎯 </b>→ Answer correctly then roll to steal points!</div>
+        <div style="background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.25);border-radius:10px;padding:12px;margin-bottom:16px"><b style="color:#27ae60">⑦ </b>First group to the target score wins! 🏆</div>
+      </div>
+      <button onclick="document.getElementById('help-modal').classList.remove('open')" style="width:100%;padding:15px;border-radius:12px;border:none;background:#f5c842;color:#1a1a1a;font-weight:700;font-size:1rem;cursor:pointer">Got it! / わかった！ ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- END CONFIRM MODAL -->
+<div id="end-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center">
+  <div style="background:#1a3328;border:2px solid rgba(231,76,60,.4);border-radius:20px;padding:28px 24px;width:90%;max-width:340px;text-align:center">
+    <div style="font-size:2rem;margin-bottom:10px">🛑</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:#f5c842;margin-bottom:8px">End Game?</div>
+    <div style="font-size:.85rem;color:rgba(240,235,224,.5);margin-bottom:20px">ゲームを終了しますか？</div>
+    <div style="display:flex;gap:10px">
+      <button onclick="document.getElementById('end-modal').style.display='none'" style="flex:1;padding:13px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#f0ebe0;font-weight:700;cursor:pointer">Cancel</button>
+      <button onclick="document.getElementById('end-modal').style.display='none';showWin()" style="flex:1;padding:13px;border-radius:10px;border:none;background:#e74c3c;color:white;font-weight:700;cursor:pointer">End It</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showEndConfirm(){var m=document.getElementById('end-modal');m.style.display='flex';}
+</script>
+
 </body>
 </html>
